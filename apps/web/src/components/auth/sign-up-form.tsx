@@ -24,6 +24,7 @@ export function SignUpForm() {
       name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
     validators: {
       onChange: registerFormSchema,
@@ -166,6 +167,35 @@ export function SignUpForm() {
                 <p className="text-muted-foreground text-xs">
                   Use at least {AUTH_MIN_PASSWORD_LENGTH} characters.
                 </p>
+                {isInvalid ? (
+                  <FieldError errors={field.state.meta.errors} />
+                ) : null}
+              </Field>
+            )
+          }}
+        </form.Field>
+
+        <form.Field name="confirmPassword">
+          {(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && field.state.meta.errors.length > 0
+
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Confirm password</FieldLabel>
+                <Input
+                  aria-invalid={isInvalid}
+                  autoComplete="new-password"
+                  id={field.name}
+                  minLength={AUTH_MIN_PASSWORD_LENGTH}
+                  name={field.name}
+                  onBlur={field.handleBlur}
+                  onChange={(event) => field.handleChange(event.target.value)}
+                  placeholder="••••••••"
+                  required
+                  type="password"
+                  value={field.state.value}
+                />
                 {isInvalid ? (
                   <FieldError errors={field.state.meta.errors} />
                 ) : null}
