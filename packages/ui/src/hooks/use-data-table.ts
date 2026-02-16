@@ -120,16 +120,20 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(initialState?.columnVisibility ?? {})
 
-  const [page, setPage] = useQueryState(
-    pageKey,
-    parseAsInteger.withOptions(queryStateOptions).withDefault(1)
+  const defaultPageSize = initialState?.pagination?.pageSize ?? 10
+  const paginationParsers = React.useMemo(
+    () => ({
+      [pageKey]: parseAsInteger.withOptions(queryStateOptions).withDefault(1),
+      [perPageKey]: parseAsInteger
+        .withOptions(queryStateOptions)
+        .withDefault(defaultPageSize),
+    }),
+    [defaultPageSize, pageKey, perPageKey, queryStateOptions]
   )
-  const [perPage, setPerPage] = useQueryState(
-    perPageKey,
-    parseAsInteger
-      .withOptions(queryStateOptions)
-      .withDefault(initialState?.pagination?.pageSize ?? 10)
-  )
+  const [paginationQuery, setPaginationQuery] =
+    useQueryStates(paginationParsers)
+  const page = paginationQuery[pageKey] ?? 1
+  const perPage = paginationQuery[perPageKey] ?? defaultPageSize
 
   const pagination: PaginationState = React.useMemo(() => {
     return {
@@ -138,18 +142,36 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     }
   }, [page, perPage])
 
+  const updatePaginationQuery = React.useCallback(
+    ({ page, perPage }: { page?: number; perPage?: number }) => {
+      const updates: Record<string, number | null> = {}
+
+      if (page !== undefined) {
+        updates[pageKey] = page
+      }
+
+      if (perPage !== undefined) {
+        updates[perPageKey] = perPage
+      }
+
+      void setPaginationQuery(updates)
+    },
+    [pageKey, perPageKey, setPaginationQuery]
+  )
+
   const onPaginationChange = React.useCallback(
     (updaterOrValue: Updater<PaginationState>) => {
-      if (typeof updaterOrValue === "function") {
-        const newPagination = updaterOrValue(pagination)
-        void setPage(newPagination.pageIndex + 1)
-        void setPerPage(newPagination.pageSize)
-      } else {
-        void setPage(updaterOrValue.pageIndex + 1)
-        void setPerPage(updaterOrValue.pageSize)
-      }
+      const newPagination =
+        typeof updaterOrValue === "function"
+          ? updaterOrValue(pagination)
+          : updaterOrValue
+
+      updatePaginationQuery({
+        page: newPagination.pageIndex + 1,
+        perPage: newPagination.pageSize,
+      })
     },
-    [pagination, setPage, setPerPage]
+    [pagination, updatePaginationQuery]
   )
 
   const columnIds = React.useMemo(() => {
@@ -205,7 +227,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
 
   const debouncedSetFilterValues = useDebouncedCallback(
     (values: typeof filterValues) => {
-      void setPage(1)
+      updatePaginationQuery({ page: 1 })
       void setFilterValues(values)
     },
     debounceMs
