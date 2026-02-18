@@ -95,6 +95,19 @@ function formatVideoDurationLabel(durationMs: number | null): string {
   return `${hours} hours per recording`
 }
 
+function setCheckoutPendingGuard(): void {
+  try {
+    window.sessionStorage.setItem(
+      "crikket:billing:checkout-pending",
+      JSON.stringify({
+        createdAt: Date.now(),
+      })
+    )
+  } catch (_error) {
+    // Ignore storage failures (e.g. privacy mode); checkout flow should proceed.
+  }
+}
+
 export function OrganizationBillingCard({
   organizationId,
   canManageBilling,
@@ -127,6 +140,7 @@ export function OrganizationBillingCard({
         throw new Error("Checkout URL is missing from response.")
       }
 
+      setCheckoutPendingGuard()
       window.location.assign(url)
     },
     onError: (error) => {
@@ -157,6 +171,7 @@ export function OrganizationBillingCard({
       })
 
       if (data.action === "checkout_required") {
+        setCheckoutPendingGuard()
         window.location.assign(data.url)
         return
       }
