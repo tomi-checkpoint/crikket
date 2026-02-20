@@ -1,6 +1,6 @@
 import { polarClient } from "@crikket/billing/lib/payments"
-import { assertOrganizationCanAddMembers } from "@crikket/billing/service/entitlements"
-import { processPolarWebhookPayload } from "@crikket/billing/service/webhooks"
+import { assertOrganizationCanAddMembers } from "@crikket/billing/service/entitlements/organization-entitlements"
+import { processPolarWebhookPayload } from "@crikket/billing/service/webhooks/process-polar-webhook-payload"
 import { db } from "@crikket/db"
 import * as schema from "@crikket/db/schema/auth"
 import { env } from "@crikket/env/server"

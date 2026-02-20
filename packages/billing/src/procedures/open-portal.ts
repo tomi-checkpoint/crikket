@@ -1,4 +1,4 @@
-import { createOrganizationPortalSession } from "../service/checkout"
+import { createOrganizationPortalSession } from "../service/checkout/portal-session"
 import { protectedProcedure } from "./context"
 import {
   optionalOrganizationIdInputSchema,

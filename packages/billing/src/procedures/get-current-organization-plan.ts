@@ -1,5 +1,5 @@
 import { assertUserBelongsToOrganization } from "../service/access"
-import { getOrganizationBillingSnapshot } from "../service/entitlements"
+import { getOrganizationBillingSnapshot } from "../service/entitlements/billing-snapshot"
 import { protectedProcedure } from "./context"
 import {
   optionalOrganizationIdInputSchema,

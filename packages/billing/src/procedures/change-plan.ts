@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { changeOrganizationPlan } from "../service/checkout"
+import { changeOrganizationPlan } from "../service/checkout/plan-change"
 import { protectedProcedure } from "./context"
 import {
   optionalOrganizationIdInputSchema,

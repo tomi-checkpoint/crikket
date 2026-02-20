@@ -1,5 +1,5 @@
 import { assertUserBelongsToOrganization } from "../service/access"
-import { getOrganizationEntitlements } from "../service/entitlements"
+import { getOrganizationEntitlements } from "../service/entitlements/organization-entitlements"
 import { protectedProcedure } from "./context"
 import {
   optionalOrganizationIdInputSchema,

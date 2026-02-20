@@ -1,4 +1,4 @@
-import { getOrganizationEntitlements } from "@crikket/billing/service/entitlements"
+import { getOrganizationEntitlements } from "@crikket/billing/service/entitlements/organization-entitlements"
 import { db } from "@crikket/db"
 import { bugReport } from "@crikket/db/schema/bug-report"
 import {
