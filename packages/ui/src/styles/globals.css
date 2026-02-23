@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
 
 @source "../../../../apps/**/*.{ts,tsx}";
 @source "../../../**/*.{ts,tsx}";
@@ -150,4 +152,10 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
