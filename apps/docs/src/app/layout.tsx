@@ -1,6 +1,5 @@
 import { RootProvider } from "fumadocs-ui/provider/next"
 
-import "./global.css"
 import "@crikket/ui/styles/globals.css"
 import { Inter } from "next/font/google"
 
