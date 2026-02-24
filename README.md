@@ -11,9 +11,16 @@
 
 <p align="center">View <a href="https://app.crikket.io/s/demo">Live Demo</a> here - Check out a sample bug report</p>
 
-
-
 ![Crikket Open Graph Preview](./apps/docs/public/og.png)
+
+## Introduction
+
+Crikket makes it easier for teams to report bugs and fix them faster.
+
+- Capture bugs in one click
+- Reports automatically include steps, logs, requests, and more details
+- Share reports instantly with a link
+- Reduce triage overhead and back-and-forth
 
 ## Getting Started
 
@@ -21,15 +28,6 @@
 - [Self Hosting](https://crikket.io/docs/self-hosting): Run Crikket on your own infrastructure. (free)
 
 Explore [documentation](https://crikket.io/docs) to learn more.
-
-## Why Crikket
-
-Crikket makes bug reporting dead simple. Users click once, share a link, and your team gets the context needed to reproduce and fix issues faster.
-
-- One-click bug reports anyone can submit
-- Share report links instantly with your team
-- Capture the context needed to reproduce issues
-- Keep triage fast with less back-and-forth
 
 ## License
 
