@@ -80,6 +80,7 @@ export function BugReportView({ id }: BugReportViewProps) {
     parseAsStringLiteral(SIDEBAR_TABS).withDefault("details")
   )
   const [networkSearch] = useQueryState("networkSearch", parseAsString)
+
   const shouldOpenDebuggerTimelineTabByDefault =
     activeTab === "actions" || activeTab === "console"
   const shouldOpenNetworkTabByDefault = activeTab === "network"
@@ -274,7 +275,9 @@ export function BugReportView({ id }: BugReportViewProps) {
       setHasOpenedNetworkTab(true)
     }
 
-    setActiveTab(tab)
+    setActiveTab(tab, { shallow: false }).catch((error: unknown) => {
+      reportNonFatalError("Failed to sync sidebar tab state to URL", error)
+    })
   }
 
   if (isLoading) {
