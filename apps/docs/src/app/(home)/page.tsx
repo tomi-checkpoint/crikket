@@ -2,6 +2,7 @@ import { AnimatedGridPattern } from "@crikket/ui/components/magicui/animated-gri
 
 import { FeaturesSection } from "./_components/features-section"
 import { Hero } from "./_components/hero"
+import { PricingSection } from "./_components/pricing-section"
 
 export default function HomePage() {
   return (
@@ -17,6 +18,7 @@ export default function HomePage() {
       <main className="z-10 flex w-full max-w-[1400px] flex-1 flex-col items-center space-y-24 px-0 text-center sm:px-4 md:px-8 xl:px-12">
         <Hero />
         <FeaturesSection />
+        <PricingSection />
       </main>
     </div>
   )
