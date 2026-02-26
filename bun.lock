@@ -18,7 +18,7 @@
     },
     "apps/docs": {
       "name": "docs",
-      "version": "0.0.0",
+      "version": "0.1.0",
       "dependencies": {
         "@crikket/env": "workspace:*",
         "@crikket/shared": "workspace:*",
@@ -45,9 +45,10 @@
     },
     "apps/extension": {
       "name": "extension",
-      "version": "0.0.0",
+      "version": "0.1.0",
       "dependencies": {
         "@crikket/api": "workspace:*",
+        "@crikket/capture-core": "workspace:*",
         "@crikket/env": "workspace:*",
         "@crikket/shared": "workspace:*",
         "@crikket/ui": "workspace:*",
@@ -72,6 +73,7 @@
     },
     "apps/server": {
       "name": "server",
+      "version": "1.0.0",
       "dependencies": {
         "@crikket/api": "workspace:*",
         "@crikket/auth": "workspace:*",
@@ -95,7 +97,7 @@
     },
     "apps/web": {
       "name": "web",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "dependencies": {
         "@base-ui/react": "catalog:",
         "@crikket/api": "workspace:*",
@@ -134,6 +136,7 @@
     },
     "packages/api": {
       "name": "@crikket/api",
+      "version": "0.0.0",
       "dependencies": {
         "@crikket/auth": "workspace:*",
         "@crikket/billing": "workspace:*",
@@ -160,6 +163,7 @@
     },
     "packages/auth": {
       "name": "@crikket/auth",
+      "version": "0.0.0",
       "dependencies": {
         "@crikket/billing": "workspace:*",
         "@crikket/db": "workspace:*",
@@ -185,6 +189,7 @@
     },
     "packages/billing": {
       "name": "@crikket/billing",
+      "version": "0.0.0",
       "dependencies": {
         "@crikket/db": "workspace:*",
         "@crikket/env": "workspace:*",
@@ -201,6 +206,7 @@
     },
     "packages/bug-reports": {
       "name": "@crikket/bug-reports",
+      "version": "0.0.0",
       "dependencies": {
         "@crikket/auth": "workspace:*",
         "@crikket/billing": "workspace:*",
@@ -233,6 +239,7 @@
     },
     "packages/db": {
       "name": "@crikket/db",
+      "version": "0.0.0",
       "dependencies": {
         "@crikket/env": "workspace:*",
         "dotenv": "catalog:",
@@ -281,7 +288,7 @@
     },
     "packages/ui": {
       "name": "@crikket/ui",
-      "version": "0.1.0",
+      "version": "0.0.0",
       "dependencies": {
         "@base-ui/react": "catalog:",
         "@dnd-kit/core": "catalog:",
