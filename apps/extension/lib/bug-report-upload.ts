@@ -1,4 +1,8 @@
 import type { BugReportDebuggerPayload } from "@crikket/capture-core/debugger/types"
+import {
+  buildDebuggerArtifactForUpload,
+  uploadArtifactToStorage,
+} from "@crikket/capture-core/upload/client"
 import type { Priority } from "@crikket/shared/constants/priorities"
 import { client } from "./orpc"
 
@@ -40,16 +44,22 @@ export async function submitBugReportWithUploads(input: {
     visibility: "private",
   })
 
-  const debuggerArtifact = await buildDebuggerArtifact(input.debuggerPayload)
+  const debuggerArtifact = await buildDebuggerArtifactForUpload(
+    input.debuggerPayload
+  )
   const uploads: Promise<void>[] = [
-    uploadArtifact(uploadSession.captureUpload, input.attachment),
+    uploadArtifactToStorage(uploadSession.captureUpload, input.attachment),
   ]
 
   if (uploadSession.debuggerUpload && debuggerArtifact) {
     uploads.push(
-      uploadArtifact(uploadSession.debuggerUpload, debuggerArtifact.blob, {
-        contentEncoding: debuggerArtifact.contentEncoding,
-      })
+      uploadArtifactToStorage(
+        uploadSession.debuggerUpload,
+        debuggerArtifact.blob,
+        {
+          contentEncoding: debuggerArtifact.contentEncoding,
+        }
+      )
     )
   }
 
@@ -62,69 +72,4 @@ export async function submitBugReportWithUploads(input: {
     debuggerContentEncoding: debuggerArtifact?.contentEncoding,
     debuggerSizeBytes: debuggerArtifact?.blob.size,
   })
-}
-
-async function uploadArtifact(
-  target: {
-    headers: Record<string, string>
-    method: "PUT"
-    url: string
-  },
-  blob: Blob,
-  options?: { contentEncoding?: string }
-): Promise<void> {
-  let response: Response
-
-  try {
-    response = await fetch(target.url, {
-      method: target.method,
-      headers: {
-        ...target.headers,
-        ...(options?.contentEncoding
-          ? { "content-encoding": options.contentEncoding }
-          : undefined),
-      },
-      body: blob,
-    })
-  } catch (error) {
-    throw new Error(
-      "Direct upload to storage failed before the server responded. Check storage CORS and network access, then retry.",
-      {
-        cause: error,
-      }
-    )
-  }
-
-  if (!response.ok) {
-    throw new Error(`Artifact upload failed with status ${response.status}.`)
-  }
-}
-
-async function buildDebuggerArtifact(
-  payload: BugReportDebuggerPayload | undefined
-): Promise<{ blob: Blob; contentEncoding?: string } | null> {
-  if (!payload) {
-    return null
-  }
-
-  const uncompressedBlob = new Blob([JSON.stringify(payload)], {
-    type: "application/json",
-  })
-
-  if (typeof CompressionStream !== "function") {
-    return {
-      blob: uncompressedBlob,
-      contentEncoding: undefined,
-    }
-  }
-
-  const compressedStream = uncompressedBlob
-    .stream()
-    .pipeThrough(new CompressionStream("gzip"))
-  const compressedBlob = await new Response(compressedStream).blob()
-
-  return {
-    blob: compressedBlob,
-    contentEncoding: "gzip",
-  }
 }

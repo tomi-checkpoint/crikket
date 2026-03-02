@@ -39,6 +39,10 @@
     "./debugger/engine/page/types": {
       "types": "./dist/debugger/engine/page/types.d.ts",
       "default": "./dist/debugger/engine/page/types.js"
+    },
+    "./upload/client": {
+      "types": "./src/upload/client.ts",
+      "default": "./src/upload/client.ts"
     }
   },
   "scripts": {

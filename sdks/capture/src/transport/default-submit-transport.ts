@@ -1,3 +1,8 @@
+import {
+  buildDebuggerArtifactForUpload,
+  type DirectUploadTarget,
+  uploadArtifactToStorage,
+} from "@crikket/capture-core/upload/client"
 import type { CaptureSubmitRequest, CaptureSubmitResult } from "../types"
 import { runTurnstileChallenge } from "./turnstile"
 
@@ -41,13 +46,22 @@ export async function defaultSubmitTransport(
   }
 
   const uploadSession = parseUploadSessionPayload(uploadSessionPayload)
-  await uploadArtifact(uploadSession.captureUpload, request.report.media)
+  await uploadArtifactToStorage(
+    uploadSession.captureUpload,
+    request.report.media
+  )
 
-  const debuggerArtifact = await buildDebuggerArtifact(request)
+  const debuggerArtifact = await buildDebuggerArtifactForUpload(
+    request.report.debuggerPayload
+  )
   if (uploadSession.debuggerUpload && debuggerArtifact) {
-    await uploadArtifact(uploadSession.debuggerUpload, debuggerArtifact.blob, {
-      contentEncoding: debuggerArtifact.contentEncoding,
-    })
+    await uploadArtifactToStorage(
+      uploadSession.debuggerUpload,
+      debuggerArtifact.blob,
+      {
+        contentEncoding: debuggerArtifact.contentEncoding,
+      }
+    )
   }
 
   const response = await fetch(finalizeUrl, {
@@ -316,8 +330,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function parseUploadSessionPayload(payload: unknown): {
   bugReportId: string
-  captureUpload: UploadTarget
-  debuggerUpload?: UploadTarget
+  captureUpload: DirectUploadTarget
+  debuggerUpload?: DirectUploadTarget
   finalizeToken?: string
 } {
   if (!isRecord(payload)) {
@@ -343,13 +357,7 @@ function parseUploadSessionPayload(payload: unknown): {
   }
 }
 
-interface UploadTarget {
-  headers: Record<string, string>
-  method: "PUT"
-  url: string
-}
-
-function parseUploadTarget(value: unknown): UploadTarget {
+function parseUploadTarget(value: unknown): DirectUploadTarget {
   if (
     !isRecord(value) ||
     value.method !== "PUT" ||
@@ -372,68 +380,5 @@ function parseUploadTarget(value: unknown): UploadTarget {
     url: value.url,
     method: "PUT",
     headers,
-  }
-}
-
-async function uploadArtifact(
-  target: UploadTarget,
-  blob: Blob,
-  options?: { contentEncoding?: string }
-): Promise<void> {
-  let response: Response
-
-  try {
-    response = await fetch(target.url, {
-      method: target.method,
-      headers: {
-        ...target.headers,
-        ...(options?.contentEncoding
-          ? { "content-encoding": options.contentEncoding }
-          : undefined),
-      },
-      body: blob,
-      mode: "cors",
-    })
-  } catch (error) {
-    throw new Error(
-      "Direct upload to storage failed before the server responded. Check storage CORS and network access, then retry.",
-      {
-        cause: error,
-      }
-    )
-  }
-
-  if (!response.ok) {
-    throw new Error(`Artifact upload failed with status ${response.status}.`)
-  }
-}
-
-async function buildDebuggerArtifact(
-  request: CaptureSubmitRequest
-): Promise<{ blob: Blob; contentEncoding?: string } | null> {
-  if (!request.report.debuggerPayload) {
-    return null
-  }
-
-  const json = JSON.stringify(request.report.debuggerPayload)
-  const uncompressedBlob = new Blob([json], {
-    type: "application/json",
-  })
-
-  if (typeof CompressionStream !== "function") {
-    return {
-      blob: uncompressedBlob,
-      contentEncoding: undefined,
-    }
-  }
-
-  const compressedStream = uncompressedBlob
-    .stream()
-    .pipeThrough(new CompressionStream("gzip"))
-  const compressedBlob = await new Response(compressedStream).blob()
-
-  return {
-    blob: compressedBlob,
-    contentEncoding: "gzip",
   }
 }
