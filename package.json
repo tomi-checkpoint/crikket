@@ -8,6 +8,8 @@
       "sdks/*"
     ],
     "catalog": {
+      "@aws-sdk/client-s3": "^3.1000.0",
+      "@aws-sdk/s3-request-presigner": "^3.1000.0",
       "dotenv": "^17.2.2",
       "zod": "^4.1.13",
       "typescript": "^5",

@@ -1,8 +1,14 @@
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3"
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { db } from "@crikket/db"
 import { bugReportStorageCleanup } from "@crikket/db/schema/bug-report"
 import { env } from "@crikket/env/server"
 import { reportNonFatalError } from "@crikket/shared/lib/errors"
-import { S3Client } from "bun"
 import { and, asc, eq, lte } from "drizzle-orm"
 import { nanoid } from "nanoid"
 
@@ -11,7 +17,7 @@ import { nanoid } from "nanoid"
  */
 export interface StorageProvider {
   save(filename: string, data: Buffer | Blob): Promise<void>
-  getUrl(filename: string): string
+  getUrl(filename: string): Promise<string>
   remove(filename: string): Promise<void>
 }
 
@@ -34,6 +40,7 @@ const STORAGE_CLEANUP_BASE_DELAY_MS = 60_000
 const STORAGE_CLEANUP_MAX_DELAY_MS = 24 * 60 * 60 * 1000
 const STORAGE_CLEANUP_DEFAULT_BATCH = 50
 const STORAGE_CLEANUP_MAX_ERROR_LENGTH = 2000
+const PRESIGNED_GET_URL_TTL_SECONDS = 604_800
 
 type CloudStorageProvider = keyof typeof CLOUD_STORAGE_PROVIDER_CONFIG
 
@@ -45,35 +52,47 @@ export function createS3StorageProvider(
 ): StorageProvider {
   const usePathStyle =
     CLOUD_STORAGE_PROVIDER_CONFIG[options.provider].usePathStyle
-
   const client = new S3Client({
-    bucket: options.bucket,
     region: options.region,
     endpoint: options.endpoint,
-    accessKeyId: options.accessKeyId,
-    secretAccessKey: options.secretAccessKey,
-    virtualHostedStyle: !usePathStyle,
+    forcePathStyle: usePathStyle,
+    credentials: {
+      accessKeyId: options.accessKeyId,
+      secretAccessKey: options.secretAccessKey,
+    },
   })
 
-  const getUrl = (filename: string): string => {
+  const getUrl = (filename: string): Promise<string> => {
     if (options.publicUrl) {
-      return `${trimTrailingSlash(options.publicUrl)}/${encodePathSegment(filename)}`
+      return Promise.resolve(
+        `${trimTrailingSlash(options.publicUrl)}/${encodePathSegment(filename)}`
+      )
     }
 
-    return client.presign(filename, {
-      method: "GET",
-      expiresIn: 604_800,
-    })
+    return getSignedUrl(
+      client,
+      new GetObjectCommand({
+        Bucket: options.bucket,
+        Key: filename,
+      }),
+      {
+        expiresIn: PRESIGNED_GET_URL_TTL_SECONDS,
+      }
+    )
   }
 
   return {
     async save(filename: string, data: Buffer | Blob): Promise<void> {
       const contentType = getMimeTypeFromFilename(filename)
       try {
-        await client.write(
-          filename,
-          data,
-          contentType ? { type: contentType } : undefined
+        const body = await normalizeUploadBody(data)
+        await client.send(
+          new PutObjectCommand({
+            Bucket: options.bucket,
+            Key: filename,
+            Body: body,
+            ContentType: contentType ?? undefined,
+          })
         )
       } catch (error) {
         const message =
@@ -86,7 +105,12 @@ export function createS3StorageProvider(
     getUrl,
     async remove(filename: string): Promise<void> {
       try {
-        await client.delete(filename)
+        await client.send(
+          new DeleteObjectCommand({
+            Bucket: options.bucket,
+            Key: filename,
+          })
+        )
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Unknown delete error"
@@ -104,12 +128,12 @@ export function getStorageProvider(): StorageProvider {
   return storageProvider
 }
 
-export function resolveAttachmentUrl(input: {
+export async function resolveAttachmentUrl(input: {
   attachmentKey: string | null
   attachmentUrl: string | null
-}): string | null {
+}): Promise<string | null> {
   if (input.attachmentKey) {
-    return storageProvider.getUrl(input.attachmentKey)
+    return await storageProvider.getUrl(input.attachmentKey)
   }
 
   return input.attachmentUrl
@@ -400,4 +424,13 @@ function getMimeTypeFromFilename(filename: string): string | null {
   if (filename.endsWith(".webm")) return "video/webm"
   if (filename.endsWith(".png")) return "image/png"
   return null
+}
+
+async function normalizeUploadBody(data: Blob | Buffer): Promise<Buffer> {
+  if (Buffer.isBuffer(data)) {
+    return data
+  }
+
+  const arrayBuffer = await data.arrayBuffer()
+  return Buffer.from(arrayBuffer)
 }

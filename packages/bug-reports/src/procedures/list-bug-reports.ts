@@ -185,12 +185,14 @@ interface BugReportListRecord {
   } | null
 }
 
-function mapBugReportListItem(report: BugReportListRecord): BugReportListItem {
+async function mapBugReportListItem(
+  report: BugReportListRecord
+): Promise<BugReportListItem> {
   const metadata = report.metadata as Record<string, unknown> | null
   const attachmentType = isAttachmentType(report.attachmentType)
     ? report.attachmentType
     : undefined
-  const attachmentUrl = resolveAttachmentUrl({
+  const attachmentUrl = await resolveAttachmentUrl({
     attachmentKey: report.attachmentKey,
     attachmentUrl: report.attachmentUrl,
   })
@@ -286,8 +288,10 @@ export const listBugReports = protectedProcedure
 
       const totalCount = countResult[0]?.value ?? 0
 
-      const items = bugReports.map((report) =>
-        mapBugReportListItem(report as BugReportListRecord)
+      const items = await Promise.all(
+        bugReports.map((report) =>
+          mapBugReportListItem(report as BugReportListRecord)
+        )
       )
 
       return {

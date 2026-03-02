@@ -50,7 +50,7 @@ export const getBugReportById = o
     const priority = priorityValues.includes(report.priority as Priority)
       ? (report.priority as Priority)
       : PRIORITY_OPTIONS.none
-    const attachmentUrl = resolveAttachmentUrl({
+    const attachmentUrl = await resolveAttachmentUrl({
       attachmentKey: report.attachmentKey,
       attachmentUrl: report.attachmentUrl,
     })
