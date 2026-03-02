@@ -1,14 +1,79 @@
-import type {
-  BugReportDebuggerPayload,
-  DebuggerEvent,
-} from "@crikket/capture-core/debugger/types"
-import type { BugReportVisibility } from "@crikket/shared/constants/bug-report"
-import type { Priority } from "@crikket/shared/constants/priorities"
 import type * as eagerCapture from "./eager"
 
 export type CaptureType = "video" | "screenshot"
-export type CapturePriority = Priority
-export type CaptureReportVisibility = BugReportVisibility
+export type CapturePriority = "none" | "low" | "medium" | "high" | "critical"
+export type CaptureReportVisibility = "public" | "private"
+
+export type DebuggerActionType =
+  | "click"
+  | "input"
+  | "change"
+  | "submit"
+  | "keydown"
+  | "navigation"
+
+export interface DebuggerActionEvent {
+  kind: "action"
+  timestamp: number
+  actionType: DebuggerActionType | string
+  target?: string
+  metadata?: Record<string, unknown>
+}
+
+export interface DebuggerConsoleEvent {
+  kind: "console"
+  timestamp: number
+  level: "log" | "info" | "warn" | "error" | "debug"
+  message: string
+  metadata?: Record<string, unknown>
+}
+
+export interface DebuggerNetworkEvent {
+  kind: "network"
+  timestamp: number
+  method: string
+  url: string
+  status?: number
+  duration?: number
+  requestHeaders?: Record<string, string>
+  responseHeaders?: Record<string, string>
+  requestBody?: string
+  responseBody?: string
+}
+
+export type DebuggerEvent =
+  | DebuggerActionEvent
+  | DebuggerConsoleEvent
+  | DebuggerNetworkEvent
+
+export interface BugReportDebuggerPayload {
+  actions: Array<{
+    type: string
+    target?: string
+    timestamp: string
+    offset: number | null
+    metadata?: Record<string, unknown>
+  }>
+  logs: Array<{
+    level: "log" | "info" | "warn" | "error" | "debug"
+    message: string
+    timestamp: string
+    offset: number | null
+    metadata?: Record<string, unknown>
+  }>
+  networkRequests: Array<{
+    method: string
+    url: string
+    status?: number
+    duration?: number
+    requestHeaders?: Record<string, string>
+    responseHeaders?: Record<string, string>
+    requestBody?: string
+    responseBody?: string
+    timestamp: string
+    offset: number | null
+  }>
+}
 
 export interface CaptureInitOptions {
   key: string

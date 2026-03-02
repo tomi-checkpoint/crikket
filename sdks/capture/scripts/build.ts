@@ -17,6 +17,9 @@ const CAPTURE_WIDGET_CSS_PLACEHOLDER = "__CRIKKET_CAPTURE_WIDGET_CSS__"
 const CAPTURE_LAUNCHER_CSS_PLACEHOLDER = "__CRIKKET_CAPTURE_LAUNCHER_CSS__"
 const USE_CLIENT_DIRECTIVE_PATTERN =
   /(^|\n)[\t ]*(["'])use client\2;?[\t ]*(?=\n|$)/g
+const RELATIVE_DECLARATION_FROM_PATTERN = /(from\s+["'])(\.\.?\/[^"']+?)(["'])/g
+const RELATIVE_DECLARATION_IMPORT_PATTERN =
+  /(import\(["'])(\.\.?\/[^"']+?)(["']\))/g
 const DUPLICATE_INDEX_EXPORT_PATTERN =
   /\nexport \{ init, mount, unmount, open, close, destroy, startRecording, stopRecording, takeScreenshot, submit, reset, isInitialized, getConfig, getCoreVersion \};\n/g
 const FILEPATH_SEGMENT_SEPARATOR_PATTERN = /[\\/]/
@@ -119,6 +122,8 @@ async function buildOnce(input: { emitDeclarations: boolean }): Promise<void> {
     if (exitCode !== 0) {
       throw new Error("Type declaration build failed.")
     }
+
+    await sanitizeDistDeclarations()
   }
 
   await writeReactEntry()
@@ -271,6 +276,31 @@ async function writeReactEntry(): Promise<void> {
   )
 }
 
+async function sanitizeDistDeclarations(): Promise<void> {
+  for (const filePath of await findFilesByExtension("./dist", ".d.ts")) {
+    const declaration = await readFile(filePath, "utf8")
+    const updatedDeclaration = declaration
+      .replaceAll(
+        RELATIVE_DECLARATION_FROM_PATTERN,
+        (_match, prefix: string, specifier: string, suffix: string) => {
+          return `${prefix}${addJavaScriptExtension(specifier)}${suffix}`
+        }
+      )
+      .replaceAll(
+        RELATIVE_DECLARATION_IMPORT_PATTERN,
+        (_match, prefix: string, specifier: string, suffix: string) => {
+          return `${prefix}${addJavaScriptExtension(specifier)}${suffix}`
+        }
+      )
+
+    await writeFile(filePath, updatedDeclaration)
+  }
+}
+
+function addJavaScriptExtension(specifier: string): string {
+  return extname(specifier).length > 0 ? specifier : `${specifier}.js`
+}
+
 function stripUseClientDirectives(source: string): string {
   return source.replaceAll(USE_CLIENT_DIRECTIVE_PATTERN, "$1")
 }
@@ -279,7 +309,14 @@ function stripDuplicateIndexExports(source: string): string {
   return source.replaceAll(DUPLICATE_INDEX_EXPORT_PATTERN, "\n")
 }
 
-async function findJavaScriptFiles(directory: string): Promise<string[]> {
+function findJavaScriptFiles(directory: string): Promise<string[]> {
+  return findFilesByExtension(directory, ".js")
+}
+
+async function findFilesByExtension(
+  directory: string,
+  extension: string
+): Promise<string[]> {
   const entries = await readdir(directory, {
     recursive: true,
     withFileTypes: true,
@@ -292,7 +329,7 @@ async function findJavaScriptFiles(directory: string): Promise<string[]> {
     }
 
     const filePath = resolve(entry.parentPath, entry.name)
-    if (extname(filePath) !== ".js") {
+    if (!filePath.endsWith(extension)) {
       continue
     }
 

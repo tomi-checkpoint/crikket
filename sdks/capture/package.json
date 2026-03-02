@@ -1,7 +1,30 @@
 {
   "name": "@crikket/capture",
   "version": "0.1.0",
+  "description": "Embeddable browser capture SDK for collecting bug reports from websites.",
+  "license": "AGPL-3.0-only",
+  "homepage": "https://crikket.io/docs/capture-sdk",
+  "bugs": {
+    "url": "https://github.com/redpangilinan/crikket/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/redpangilinan/crikket.git",
+    "directory": "sdks/capture"
+  },
+  "keywords": [
+    "bug-reporting",
+    "capture-sdk",
+    "debugging",
+    "feedback-widget",
+    "react",
+    "screen-recording",
+    "screenshot"
+  ],
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -28,18 +51,28 @@
     "check-types": "tsc --noEmit -p tsconfig.json",
     "test": "bun test test"
   },
-  "dependencies": {
-    "@crikket/shared": "workspace:*",
-    "@crikket/capture-core": "workspace:*",
-    "react": "catalog:",
-    "react-dom": "catalog:"
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
   },
   "devDependencies": {
+    "@crikket/capture-core": "workspace:*",
     "@tailwindcss/postcss": "catalog:",
     "@crikket/config": "workspace:*",
+    "@crikket/shared": "workspace:*",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "postcss": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:"
   }

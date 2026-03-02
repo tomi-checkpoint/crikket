@@ -75,7 +75,7 @@ init({
 Available options:
 
 - `key`: required public key from Crikket `Settings` -> `Public Keys`
-- `host`: optional Crikket app origin; defaults to `https://app.crikket.com`
+- `host`: optional Crikket API origin; defaults to `https://api.crikket.io`
 - `autoMount`: mount automatically on init; defaults to `true`
 - `mountTarget`: custom element to mount into; defaults to `document.body`
 - `submitPath`: custom ingest path; defaults to `/api/embed/bug-reports`
@@ -177,7 +177,7 @@ export function CaptureProvider(): React.JSX.Element | null {
 
   return (
     <CapturePlugin
-      host={process.env.NEXT_PUBLIC_CRIKKET_HOST}
+      host={process.env.NEXT_PUBLIC_CRIKKET_HOST ?? "https://api.crikket.io"}
       publicKey={publicKey}
     />
   )
