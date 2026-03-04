@@ -1,4 +1,3 @@
-import { CAPTURE_CORE_VERSION } from "@crikket/capture-core"
 import { BUG_REPORT_VISIBILITY_OPTIONS } from "@crikket/shared/constants/bug-report"
 import { defaultSubmitTransport } from "../transport/default-submit-transport"
 import type {
@@ -32,7 +31,6 @@ export function submitCapturedReport(input: {
       pageTitle: getPageTitle(),
       durationMs: input.media.durationMs,
       deviceInfo: getDeviceInfo(),
-      sdkVersion: CAPTURE_CORE_VERSION,
       debuggerPayload: input.review.debuggerPayload,
       debuggerSummary: input.review.debuggerSummary,
       media: input.media.blob,

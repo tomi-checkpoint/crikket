@@ -81,7 +81,7 @@
     "check-types": "turbo run check-types",
     "dev:native": "turbo run dev --filter=native",
     "dev:web": "turbo run dev --filter=web",
-    "dev:capture": "turbo run dev --filter=@crikket/capture",
+    "dev:capture": "turbo run dev --filter=@crikket-io/capture",
     "dev:server": "turbo run dev --filter=server",
     "db:push": "turbo run db:push --filter=@crikket/db",
     "db:studio": "turbo run db:studio --filter=@crikket/db",

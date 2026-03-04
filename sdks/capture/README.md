@@ -1,15 +1,15 @@
-# @crikket/capture
+# @crikket-io/capture
 
 Embeddable capture SDK for collecting bug reports from websites.
 
 ## Install
 
 ```bash
-npm install @crikket/capture
+npm install @crikket-io/capture
 ```
 
 ```bash
-bun add @crikket/capture
+bun add @crikket-io/capture
 ```
 
 ## Quick Start
@@ -33,7 +33,7 @@ client-side code.
 Call `init()` from a browser entrypoint in your app:
 
 ```ts
-import { init } from "@crikket/capture"
+import { init } from "@crikket-io/capture"
 
 init({
   key: "crk_your_public_key",
@@ -45,7 +45,7 @@ If you are using Crikket Cloud, `host` defaults to `https://api.crikket.io`.
 If you are self-hosting Crikket, pass your own app origin:
 
 ```ts
-import { init } from "@crikket/capture"
+import { init } from "@crikket-io/capture"
 
 init({
   key: "crk_your_public_key",
@@ -64,7 +64,7 @@ Use `init()` when you want the smallest integration surface. Run it once in a
 browser-only entrypoint.
 
 ```ts
-import { init } from "@crikket/capture"
+import { init } from "@crikket-io/capture"
 
 init({
   key: "crk_your_public_key",
@@ -91,7 +91,7 @@ default the SDK derives these routes from `/api/embed/bug-reports`:
 The package also exports runtime controls if you need them:
 
 ```ts
-import { close, init, open } from "@crikket/capture"
+import { close, init, open } from "@crikket-io/capture"
 
 init({
   key: "crk_your_public_key",
@@ -107,7 +107,7 @@ For Next.js 15.3 and newer, initialize the SDK once in
 `instrumentation-client.ts` so it runs globally in the browser.
 
 ```ts
-import { init } from "@crikket/capture"
+import { init } from "@crikket-io/capture"
 
 const capturePublicKey = process.env.NEXT_PUBLIC_CRIKKET_KEY
 
@@ -123,7 +123,7 @@ Example file:
 
 ```ts
 // instrumentation-client.ts
-import { init } from "@crikket/capture"
+import { init } from "@crikket-io/capture"
 
 const capturePublicKey = process.env.NEXT_PUBLIC_CRIKKET_KEY
 
@@ -148,12 +148,12 @@ If you are using Crikket Cloud, you can omit
 ### React integration
 
 If you prefer a React-native integration point, use the plugin from
-`@crikket/capture/react` and mount it once near your app root.
+`@crikket-io/capture/react` and mount it once near your app root.
 
 ```tsx
 "use client"
 
-import { CapturePlugin } from "@crikket/capture/react"
+import { CapturePlugin } from "@crikket-io/capture/react"
 
 export function AppProviders(): React.JSX.Element {
   return (
@@ -173,7 +173,7 @@ With environment variables:
 ```tsx
 "use client"
 
-import { CapturePlugin } from "@crikket/capture/react"
+import { CapturePlugin } from "@crikket-io/capture/react"
 
 export function CaptureProvider(): React.JSX.Element | null {
   const publicKey = process.env.NEXT_PUBLIC_CRIKKET_KEY

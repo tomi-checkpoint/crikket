@@ -21,7 +21,7 @@ const RELATIVE_DECLARATION_FROM_PATTERN = /(from\s+["'])(\.\.?\/[^"']+?)(["'])/g
 const RELATIVE_DECLARATION_IMPORT_PATTERN =
   /(import\(["'])(\.\.?\/[^"']+?)(["']\))/g
 const DUPLICATE_INDEX_EXPORT_PATTERN =
-  /\nexport \{ init, mount, unmount, open, close, destroy, startRecording, stopRecording, takeScreenshot, submit, reset, isInitialized, getConfig, getCoreVersion \};\n/g
+  /\nexport \{ init, mount, unmount, open, close, destroy, startRecording, stopRecording, takeScreenshot, submit, reset, isInitialized, getConfig \};\n/g
 const FILEPATH_SEGMENT_SEPARATOR_PATTERN = /[\\/]/
 
 const esmBuildEntrypoints = [

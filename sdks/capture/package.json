@@ -1,5 +1,5 @@
 {
-  "name": "@crikket/capture",
+  "name": "@crikket-io/capture",
   "version": "0.1.0",
   "description": "Embeddable browser capture SDK for collecting bug reports from websites.",
   "license": "AGPL-3.0-only",
@@ -67,11 +67,13 @@
     "react": ">=18",
     "react-dom": ">=18"
   },
-  "devDependencies": {
+  "dependencies": {
     "@crikket/capture-core": "workspace:*",
+    "@crikket/shared": "workspace:*"
+  },
+  "devDependencies": {
     "@tailwindcss/postcss": "catalog:",
     "@crikket/config": "workspace:*",
-    "@crikket/shared": "workspace:*",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "postcss": "catalog:",

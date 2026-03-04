@@ -1,4 +1,3 @@
-import { CAPTURE_CORE_VERSION } from "@crikket/capture-core"
 import { LazyDebuggerCollector } from "../debugger/lazy-debugger-collector"
 import {
   captureScreenshot,
@@ -245,10 +244,6 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
     this.clearMedia()
     this.currentReview = null
     this.debuggerCollector.clearSession()
-  }
-
-  getCoreVersion(): string {
-    return CAPTURE_CORE_VERSION
   }
 
   private setMedia(input: {

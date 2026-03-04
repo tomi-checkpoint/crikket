@@ -10,7 +10,7 @@ export function normalizeKey(value: string): string {
   const normalized = value.trim()
   if (!normalized) {
     throw new Error(
-      "@crikket/capture requires a non-empty key in capture.init({ key })"
+      "@crikket-io/capture requires a non-empty key in capture.init({ key })"
     )
   }
 

@@ -102,9 +102,9 @@
       "version": "0.1.0",
       "dependencies": {
         "@base-ui/react": "catalog:",
+        "@crikket-io/capture": "workspace:*",
         "@crikket/api": "workspace:*",
         "@crikket/auth": "workspace:*",
-        "@crikket/capture": "workspace:*",
         "@crikket/env": "workspace:*",
         "@crikket/shared": "workspace:*",
         "@crikket/ui": "workspace:*",
@@ -338,12 +338,14 @@
       },
     },
     "sdks/capture": {
-      "name": "@crikket/capture",
+      "name": "@crikket-io/capture",
       "version": "0.1.0",
-      "devDependencies": {
+      "dependencies": {
         "@crikket/capture-core": "workspace:*",
-        "@crikket/config": "workspace:*",
         "@crikket/shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@crikket/config": "workspace:*",
         "@tailwindcss/postcss": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
@@ -666,6 +668,8 @@
 
     "@clack/prompts": ["@clack/prompts@0.11.0", "", { "dependencies": { "@clack/core": "0.5.0", "picocolors": "^1.0.0", "sisteransi": "^1.0.5" } }, "sha512-pMN5FcrEw9hUkZA4f+zLlzivQSeQf5dRGJjSUbvVYDLvpKCdQx5OaknvKzgbtXOizhP+SJJJjqEbOe55uKKfAw=="],
 
+    "@crikket-io/capture": ["@crikket-io/capture@workspace:sdks/capture"],
+
     "@crikket/api": ["@crikket/api@workspace:packages/api"],
 
     "@crikket/auth": ["@crikket/auth@workspace:packages/auth"],
@@ -673,8 +677,6 @@
     "@crikket/billing": ["@crikket/billing@workspace:packages/billing"],
 
     "@crikket/bug-reports": ["@crikket/bug-reports@workspace:packages/bug-reports"],
-
-    "@crikket/capture": ["@crikket/capture@workspace:sdks/capture"],
 
     "@crikket/capture-core": ["@crikket/capture-core@workspace:packages/capture-core"],
 

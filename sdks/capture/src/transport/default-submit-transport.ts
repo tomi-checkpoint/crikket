@@ -113,7 +113,6 @@ function buildUploadSessionRequest(request: CaptureSubmitRequest): {
   metadata: {
     durationMs?: number
     pageTitle: string
-    sdkVersion: string
     submittedVia: string
   }
   priority: CaptureSubmitRequest["report"]["priority"]
@@ -135,7 +134,6 @@ function buildUploadSessionRequest(request: CaptureSubmitRequest): {
     metadata: {
       durationMs: request.report.durationMs ?? undefined,
       pageTitle: request.report.pageTitle,
-      sdkVersion: request.report.sdkVersion,
       submittedVia: "capture-sdk",
     },
     deviceInfo: request.report.deviceInfo,

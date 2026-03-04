@@ -10,7 +10,7 @@ This page covers the recommended ways to initialize the Capture SDK with a publi
 Use `init()` if you want the smallest integration surface in any browser app.
 
 ```ts
-import { init } from "@crikket/capture"
+import { init } from "@crikket-io/capture"
 
 init({
   key: "crk_your_public_key",
@@ -30,7 +30,7 @@ Common options:
 If you need programmatic control, the package also exports runtime helpers:
 
 ```ts
-import { close, init, open } from "@crikket/capture"
+import { close, init, open } from "@crikket-io/capture"
 
 init({
   key: "crk_your_public_key",
@@ -46,7 +46,7 @@ close()
 For Next.js 15.3 and newer, initialize the SDK once in `instrumentation-client.ts`.
 
 ```ts
-import { init } from "@crikket/capture"
+import { init } from "@crikket-io/capture"
 
 const capturePublicKey = process.env.NEXT_PUBLIC_CRIKKET_KEY
 
@@ -67,12 +67,12 @@ NEXT_PUBLIC_CRIKKET_HOST=https://api.crikket.io
 
 ## React Integration
 
-Use `@crikket/capture/react` when you want a React-native mount point near your app root.
+Use `@crikket-io/capture/react` when you want a React-native mount point near your app root.
 
 ```tsx
 "use client"
 
-import { CapturePlugin } from "@crikket/capture/react"
+import { CapturePlugin } from "@crikket-io/capture/react"
 
 export function CaptureProvider(): React.JSX.Element {
   return (
@@ -89,7 +89,7 @@ With environment variables:
 ```tsx
 "use client"
 
-import { CapturePlugin } from "@crikket/capture/react"
+import { CapturePlugin } from "@crikket-io/capture/react"
 
 export function CaptureProvider(): React.JSX.Element | null {
   const publicKey = process.env.NEXT_PUBLIC_CRIKKET_KEY

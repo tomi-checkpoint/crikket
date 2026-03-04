@@ -21,7 +21,6 @@ const request = {
     pageUrl: "https://example.com/checkout",
     pageTitle: "Checkout",
     durationMs: null,
-    sdkVersion: "1.0.0",
     deviceInfo: {
       browser: "bun-test",
     },

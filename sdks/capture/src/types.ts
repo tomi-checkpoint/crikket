@@ -116,7 +116,6 @@ export interface CaptureSubmitRequest {
     pageUrl: string
     pageTitle: string
     durationMs: number | null
-    sdkVersion: string
     deviceInfo?: {
       browser?: string
       os?: string

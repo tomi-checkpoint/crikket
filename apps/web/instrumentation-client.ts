@@ -1,6 +1,6 @@
-import { init } from "@crikket/capture"
 import { env } from "@crikket/env/web"
 import { initPostHog } from "@crikket/shared/lib/posthog"
+import { init } from "@crikket-io/capture"
 
 if (env.NEXT_PUBLIC_CRIKKET_KEY) {
   init({

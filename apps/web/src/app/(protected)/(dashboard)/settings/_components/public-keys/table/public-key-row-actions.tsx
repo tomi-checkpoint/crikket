@@ -37,7 +37,7 @@ interface PublicKeyRowActionsProps {
 
 function buildBundlerSnippet(input: { host: string; key: string }): string {
   return [
-    'import { init } from "@crikket/capture"',
+    'import { init } from "@crikket-io/capture"',
     "",
     "init({",
     `  key: "${input.key}",`,

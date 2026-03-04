@@ -1,4 +1,3 @@
-import { CAPTURE_CORE_VERSION } from "@crikket/capture-core"
 import { LazyCaptureSdkRuntime } from "./runtime/lazy-capture-runtime"
 import type {
   CaptureInitOptions,
@@ -76,8 +75,4 @@ export function isInitialized(): boolean {
 
 export function getConfig() {
   return runtime.getConfig()
-}
-
-export function getCoreVersion(): string {
-  return CAPTURE_CORE_VERSION
 }
