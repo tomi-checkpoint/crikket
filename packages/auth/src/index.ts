@@ -24,8 +24,7 @@ const MINUTE = 60
 const HOUR = 60 * MINUTE
 const DAY = 24 * HOUR
 
-const ALLOWED_SIGNUP_DOMAINS: readonly string[] =
-  env.ALLOWED_SIGNUP_DOMAINS.split(",")
+const allowedSignupDomains = env.ALLOWED_SIGNUP_DOMAINS
 
 const isProduction = env.NODE_ENV === "production"
 const trustedOrigins = Array.from(
@@ -130,11 +129,11 @@ export const auth = betterAuth({
           const domain = email.split("@")[1] ?? ""
 
           if (
-            ALLOWED_SIGNUP_DOMAINS.length > 0 &&
-            !ALLOWED_SIGNUP_DOMAINS.includes(domain)
+            allowedSignupDomains.length > 0 &&
+            !allowedSignupDomains.includes(domain)
           ) {
             throw new APIError("UNPROCESSABLE_ENTITY", {
-              message: `Sign up is only available for ${ALLOWED_SIGNUP_DOMAINS.join(", ")} domains.`,
+              message: `Sign up is only available for ${allowedSignupDomains.join(", ")} domains.`,
             })
           }
         },
