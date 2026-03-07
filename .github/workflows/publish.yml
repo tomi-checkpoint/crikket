@@ -38,5 +38,8 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Build SDK dependencies
+        run: bun x turbo run build --filter=@crikket/capture-core --filter=@crikket-io/capture
+
       - name: Publish packages
         run: bun run changeset:publish
