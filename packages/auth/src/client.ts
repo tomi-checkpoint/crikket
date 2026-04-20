@@ -27,7 +27,13 @@ type AuthClient<Option extends BetterAuthClientOptions> = ReturnType<
   typeof createAuthClient<Option>
 >
 
+const isServerRuntime = typeof window === "undefined"
+const ssrBaseURL =
+  isServerRuntime && process.env.SSR_SERVER_URL
+    ? process.env.SSR_SERVER_URL
+    : undefined
+
 export const authClient: AuthClient<AuthClientOptions> = createAuthClient({
-  baseURL: env.NEXT_PUBLIC_SERVER_URL,
+  baseURL: ssrBaseURL ?? env.NEXT_PUBLIC_SERVER_URL,
   plugins: [adminPlugin, emailOtpPlugin, organizationPlugin, polarPlugin],
 })

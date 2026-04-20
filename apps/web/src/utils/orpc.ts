@@ -20,8 +20,13 @@ export const queryClient = new QueryClient({
   }),
 })
 
+const orpcBaseURL =
+  typeof window === "undefined" && process.env.SSR_SERVER_URL
+    ? process.env.SSR_SERVER_URL
+    : env.NEXT_PUBLIC_SERVER_URL
+
 export const link = new RPCLink({
-  url: `${env.NEXT_PUBLIC_SERVER_URL}/rpc`,
+  url: `${orpcBaseURL}/rpc`,
   fetch(url, options) {
     return fetch(url, {
       ...options,
