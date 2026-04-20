@@ -1,6 +1,13 @@
+import type { authClient } from "@crikket/auth/client"
 import { env } from "@crikket/env/web"
 import { headers } from "next/headers"
 import { cache } from "react"
+
+type SessionPayload = Awaited<
+  ReturnType<typeof authClient.getSession>
+>["data"]
+
+type Organization = typeof authClient.$Infer.Organization
 
 const SSR_SERVER_URL =
   process.env.SSR_SERVER_URL?.replace(/\/$/, "") ||
@@ -19,12 +26,12 @@ export const getProtectedAuthData = cache(async () => {
     fetchInit
   ).catch(() => null)
 
-  const sessionData = sessionResponse?.ok
+  const sessionData = (sessionResponse?.ok
     ? await sessionResponse.json().catch(() => null)
-    : null
+    : null) as SessionPayload
 
   if (!sessionData?.session) {
-    return { organizations: [], session: null }
+    return { organizations: [] as Organization[], session: null }
   }
 
   const organizationsResponse = await fetch(
@@ -32,12 +39,16 @@ export const getProtectedAuthData = cache(async () => {
     fetchInit
   ).catch(() => null)
 
-  const organizations = organizationsResponse?.ok
-    ? ((await organizationsResponse.json().catch(() => [])) as unknown[])
+  const organizationsRaw = organizationsResponse?.ok
+    ? await organizationsResponse.json().catch(() => [])
     : []
 
+  const organizations = (
+    Array.isArray(organizationsRaw) ? organizationsRaw : []
+  ) as Organization[]
+
   return {
-    organizations: Array.isArray(organizations) ? organizations : [],
+    organizations,
     session: sessionData,
   }
 })
