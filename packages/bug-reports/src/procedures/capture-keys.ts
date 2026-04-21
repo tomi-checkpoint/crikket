@@ -9,6 +9,7 @@ import {
   updateCapturePublicKeyDetails,
   updateCapturePublicKeyOrigins,
 } from "../lib/capture-public-key"
+import { syncTurnstileDomainsFromOrigins } from "../lib/turnstile-sync"
 import { protectedProcedure } from "./context"
 import { requireActiveOrgAdmin } from "./helpers"
 
@@ -66,12 +67,14 @@ export const createCaptureKey = protectedProcedure
     const organizationId = await requireActiveOrgAdmin(context.session)
 
     try {
-      return await createCapturePublicKey({
+      const result = await createCapturePublicKey({
         allowedOrigins: input.allowedOrigins,
         createdBy: context.session.user.id,
         label: input.label,
         organizationId,
       })
+      syncTurnstileDomainsFromOrigins(input.allowedOrigins)
+      return result
     } catch (error) {
       rethrowCaptureKeyInputError(error)
     }
@@ -83,11 +86,13 @@ export const updateCaptureKeyOrigins = protectedProcedure
     const organizationId = await requireActiveOrgAdmin(context.session)
 
     try {
-      return await updateCapturePublicKeyOrigins({
+      const result = await updateCapturePublicKeyOrigins({
         allowedOrigins: input.allowedOrigins,
         keyId: input.keyId,
         organizationId,
       })
+      syncTurnstileDomainsFromOrigins(input.allowedOrigins)
+      return result
     } catch (error) {
       rethrowCaptureKeyInputError(error)
     }
@@ -99,12 +104,14 @@ export const updateCaptureKeyDetails = protectedProcedure
     const organizationId = await requireActiveOrgAdmin(context.session)
 
     try {
-      return await updateCapturePublicKeyDetails({
+      const result = await updateCapturePublicKeyDetails({
         allowedOrigins: input.allowedOrigins,
         keyId: input.keyId,
         label: input.label,
         organizationId,
       })
+      syncTurnstileDomainsFromOrigins(input.allowedOrigins)
+      return result
     } catch (error) {
       rethrowCaptureKeyInputError(error)
     }

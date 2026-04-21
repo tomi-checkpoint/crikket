@@ -55,6 +55,8 @@ export const env = createEnv({
     CAPTURE_SUBMIT_TOKEN_SECRET: z.string().min(32).optional(),
     TURNSTILE_SITE_KEY: z.string().min(1).optional(),
     TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
+    CLOUDFLARE_API_TOKEN: z.string().min(1).optional(),
+    CLOUDFLARE_ACCOUNT_ID: z.string().min(1).optional(),
     NODE_ENV: z
       .enum(["development", "production", "staging"])
       .default("development"),
