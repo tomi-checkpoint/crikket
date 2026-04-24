@@ -29,6 +29,7 @@ export interface CaptureUiHandlers {
   onClose: () => void
   onStartVideo: () => void
   onTakeScreenshot: () => void
+  onPickScreenshotFile: (file: File | Blob) => void
   onStopRecording: () => void
   onSubmit: (
     draft: CaptureSubmissionDraft,
@@ -44,12 +45,17 @@ export interface CaptureUiCallbacks {
   onClose: () => void
   onStartVideo: () => Promise<{ startedAt: number }>
   onTakeScreenshot: () => Promise<void>
+  onPickScreenshotFile: (file: File | Blob) => Promise<void>
   onStopRecording: () => Promise<void>
   onSubmit: (
     draft: CaptureSubmissionDraft,
     options?: CaptureReviewSubmitOptions
   ) => Promise<void>
   onReset: () => void
+}
+
+export interface CaptureUiCapabilities {
+  supportsDisplayMedia: boolean
 }
 
 export interface CaptureUiStore {

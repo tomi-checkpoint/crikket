@@ -1,5 +1,9 @@
 import { lazy, Suspense } from "react"
-import type { CaptureUiHandlers, CaptureUiState } from "../types"
+import type {
+  CaptureUiCapabilities,
+  CaptureUiHandlers,
+  CaptureUiState,
+} from "../types"
 import { ChooserSection } from "./sections/chooser-section"
 import { SuccessSection } from "./sections/success-section"
 
@@ -12,6 +16,7 @@ const LazyReviewFormSection = lazy(async () => {
 })
 
 export function CaptureWidgetView(props: {
+  capabilities: CaptureUiCapabilities
   handlers: CaptureUiHandlers
   isBusy: boolean
   isSubmitPending: boolean
@@ -21,8 +26,10 @@ export function CaptureWidgetView(props: {
     return (
       <ChooserSection
         busy={props.isBusy}
+        onPickScreenshotFile={props.handlers.onPickScreenshotFile}
         onStartVideo={props.handlers.onStartVideo}
         onTakeScreenshot={props.handlers.onTakeScreenshot}
+        supportsDisplayMedia={props.capabilities.supportsDisplayMedia}
       />
     )
   }

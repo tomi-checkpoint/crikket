@@ -1,11 +1,16 @@
 import { useSyncExternalStore } from "react"
-import type { CaptureUiCallbacks, CaptureUiStore } from "../types"
+import type {
+  CaptureUiCallbacks,
+  CaptureUiCapabilities,
+  CaptureUiStore,
+} from "../types"
 import { CaptureWidgetShell } from "./capture-widget-shell"
 import { useCaptureUiHandlers } from "./hooks/use-capture-ui-handlers"
 import { useRecordingClock } from "./hooks/use-recording-clock"
 
 export function CaptureWidgetRoot(props: {
   callbacks: CaptureUiCallbacks
+  capabilities: CaptureUiCapabilities
   store: CaptureUiStore
   zIndex: number
 }): React.JSX.Element {
@@ -26,6 +31,7 @@ export function CaptureWidgetRoot(props: {
 
   return (
     <CaptureWidgetShell
+      capabilities={props.capabilities}
       handlers={handlers}
       isSubmitPending={isSubmitPending}
       recordingTime={recordingTime}

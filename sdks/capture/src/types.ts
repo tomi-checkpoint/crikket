@@ -186,6 +186,7 @@ export interface CaptureRuntimeController {
   startRecording: () => Promise<{ startedAt: number }>
   stopRecording: () => Promise<Blob | null>
   takeScreenshot: () => Promise<Blob | null>
+  takeScreenshotFromFile: (file: File | Blob) => Promise<Blob | null>
   submit: (draft: CaptureSubmissionDraft) => Promise<CaptureSubmitResult>
   reset: () => void
   isInitialized: () => boolean

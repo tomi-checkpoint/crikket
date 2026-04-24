@@ -69,7 +69,8 @@
   },
   "dependencies": {
     "@crikket/capture-core": "workspace:*",
-    "@crikket/shared": "workspace:*"
+    "@crikket/shared": "workspace:*",
+    "html2canvas-pro": "^1.5.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "catalog:",

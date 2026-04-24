@@ -1,4 +1,8 @@
-import type { CaptureUiHandlers, CaptureUiState } from "../types"
+import type {
+  CaptureUiCapabilities,
+  CaptureUiHandlers,
+  CaptureUiState,
+} from "../types"
 import { CaptureWidgetView } from "./capture-widget-view"
 import { CaptureLauncherButton } from "./components/capture-launcher-button"
 import { Button } from "./components/primitives/button"
@@ -16,6 +20,7 @@ export function CaptureWidgetShell(props: {
   zIndex: number
   state: CaptureUiState
   handlers: CaptureUiHandlers
+  capabilities: CaptureUiCapabilities
   isSubmitPending: boolean
   recordingTime: string
 }): React.JSX.Element {
@@ -79,6 +84,7 @@ export function CaptureWidgetShell(props: {
               }
             >
               <CaptureWidgetView
+                capabilities={props.capabilities}
                 handlers={props.handlers}
                 isBusy={isBusy}
                 isSubmitPending={props.isSubmitPending}

@@ -1,14 +1,24 @@
 import { createRoot } from "react-dom/client"
 import { CaptureWidgetRoot } from "./capture-widget/capture-widget-root"
 import { createCaptureUiStore } from "./store/capture-ui-store"
-import type { CaptureUiCallbacks, MountedCaptureUi } from "./types"
+import type {
+  CaptureUiCallbacks,
+  CaptureUiCapabilities,
+  MountedCaptureUi,
+} from "./types"
 
 const CAPTURE_WIDGET_CSS_PLACEHOLDER = "__CRIKKET_CAPTURE_WIDGET_CSS__"
 
 export function mountCaptureUi(
   target: HTMLElement,
   zIndex: number,
-  callbacks: CaptureUiCallbacks
+  callbacks: CaptureUiCallbacks,
+  capabilities: CaptureUiCapabilities = {
+    supportsDisplayMedia:
+      typeof navigator !== "undefined" &&
+      !!navigator.mediaDevices &&
+      typeof navigator.mediaDevices.getDisplayMedia === "function",
+  }
 ): MountedCaptureUi {
   const hostElement = document.createElement("div")
   const shadowRoot = hostElement.attachShadow({
@@ -24,7 +34,12 @@ export function mountCaptureUi(
   const reactRoot = createRoot(container)
   const store = createCaptureUiStore()
   reactRoot.render(
-    <CaptureWidgetRoot callbacks={callbacks} store={store} zIndex={zIndex} />
+    <CaptureWidgetRoot
+      callbacks={callbacks}
+      capabilities={capabilities}
+      store={store}
+      zIndex={zIndex}
+    />
   )
 
   return {

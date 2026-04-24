@@ -59,6 +59,10 @@ export function takeScreenshot(): Promise<Blob | null> {
   return runtime.takeScreenshot()
 }
 
+export function takeScreenshotFromFile(file: File | Blob): Promise<Blob | null> {
+  return runtime.takeScreenshotFromFile(file)
+}
+
 export function submit(
   draft: CaptureSubmissionDraft
 ): Promise<CaptureSubmitResult> {

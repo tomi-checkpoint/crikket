@@ -12,6 +12,7 @@ import {
   stopRecording,
   submit,
   takeScreenshot,
+  takeScreenshotFromFile,
   unmount,
 } from "./index"
 import type { CaptureGlobalApi } from "./types"
@@ -30,6 +31,7 @@ const capture = {
   stopRecording,
   submit,
   takeScreenshot,
+  takeScreenshotFromFile,
   unmount,
 } satisfies CaptureGlobalApi
 

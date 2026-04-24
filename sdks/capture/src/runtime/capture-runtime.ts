@@ -1,6 +1,7 @@
 import { LazyDebuggerCollector } from "../debugger/lazy-debugger-collector"
 import {
   captureScreenshot,
+  captureScreenshotFromFile,
   startDisplayRecording,
 } from "../media/lazy-capture-media"
 import type {
@@ -78,6 +79,12 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
         const blob = await this.takeScreenshot()
         if (!blob) {
           throw new Error("Screenshot capture failed.")
+        }
+      },
+      onPickScreenshotFile: async (file) => {
+        const blob = await this.takeScreenshotFromFile(file)
+        if (!blob) {
+          throw new Error("Screenshot upload failed.")
         }
       },
       onStopRecording: async () => {
@@ -191,6 +198,27 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
       blob = await captureScreenshot()
     } catch (error) {
       this.setUiHidden(false)
+      this.debuggerCollector.clearSession()
+      throw error
+    }
+    await this.finalizeCapturedMedia({
+      blob,
+      captureType: "screenshot",
+      durationMs: null,
+    })
+
+    return blob
+  }
+
+  async takeScreenshotFromFile(file: File | Blob): Promise<Blob | null> {
+    this.getRuntimeConfig()
+    this.ensureBrowserContext()
+    await this.debuggerCollector.startScreenshotSession()
+
+    let blob: Blob
+    try {
+      blob = await captureScreenshotFromFile(file)
+    } catch (error) {
       this.debuggerCollector.clearSession()
       throw error
     }
