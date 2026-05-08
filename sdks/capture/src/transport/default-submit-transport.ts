@@ -3,7 +3,11 @@ import {
   type DirectUploadTarget,
   uploadArtifactToStorage,
 } from "@crikket/capture-core/upload/client"
-import type { CaptureSubmitRequest, CaptureSubmitResult } from "../types"
+import type {
+  CaptureIssueSurface,
+  CaptureSubmitRequest,
+  CaptureSubmitResult,
+} from "../types"
 import { runTurnstileChallenge } from "./turnstile"
 
 const ABSOLUTE_HTTP_URL_REGEX = /^https?:\/\//
@@ -112,6 +116,13 @@ function buildUploadSessionRequest(request: CaptureSubmitRequest): {
   hasDebuggerPayload: boolean
   metadata: {
     durationMs?: number
+    issueContext: {
+      actualBehavior?: string
+      expectedBehavior?: string
+      reproSteps?: string
+      summary?: string
+      surface: CaptureIssueSurface
+    }
     pageTitle: string
     submittedVia: string
   }
@@ -126,13 +137,22 @@ function buildUploadSessionRequest(request: CaptureSubmitRequest): {
 
   return {
     title: request.report.title,
-    description: request.report.description,
+    description: buildStructuredDescription(request.report),
     priority: request.report.priority,
     visibility: request.report.visibility,
     attachmentType: request.report.captureType,
     url: request.report.pageUrl,
     metadata: {
       durationMs: request.report.durationMs ?? undefined,
+      issueContext: {
+        actualBehavior: optionalStructuredText(request.report.actualBehavior),
+        expectedBehavior: optionalStructuredText(
+          request.report.expectedBehavior
+        ),
+        reproSteps: optionalStructuredText(request.report.stepsToReproduce),
+        summary: optionalStructuredText(request.report.description),
+        surface: request.report.surface,
+      },
       pageTitle: request.report.pageTitle,
       submittedVia: "capture-sdk",
     },
@@ -141,6 +161,35 @@ function buildUploadSessionRequest(request: CaptureSubmitRequest): {
     debuggerSummary: request.report.debuggerSummary,
     hasDebuggerPayload: Boolean(request.report.debuggerPayload),
   }
+}
+
+function buildStructuredDescription(
+  report: CaptureSubmitRequest["report"]
+): string {
+  const sections = [
+    ["Summary", report.description],
+    ["Repro Steps", report.stepsToReproduce],
+    ["Expected Behavior", report.expectedBehavior],
+    ["Actual Behavior", report.actualBehavior],
+    ["Surface", report.surface === "unknown" ? "" : report.surface],
+  ] as const
+  return sections
+    .map(([title, value]) => formatDescriptionSection(title, value))
+    .filter((section) => section.length > 0)
+    .join("\n\n")
+}
+
+function formatDescriptionSection(title: string, value: string): string {
+  const normalized = value.trim()
+  if (!normalized) {
+    return ""
+  }
+  return `### ${title}\n${normalized}`
+}
+
+function optionalStructuredText(value: string): string | undefined {
+  const normalized = value.trim()
+  return normalized.length > 0 ? normalized : undefined
 }
 
 async function fetchCaptureSubmitToken(

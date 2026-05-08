@@ -55,7 +55,7 @@ const debuggerSummarySchema = z.object({
 
 export const createBugReportUploadSessionInputSchema = z.object({
   title: optionalText(200),
-  description: optionalText(3000),
+  description: optionalText(12_000),
   priority: z.enum(priorityValues).default(PRIORITY_OPTIONS.none),
   tags: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
   url: z.string().url().optional(),
@@ -106,6 +106,7 @@ function normalizeUploadMetadata(
     sdkVersion: metadata?.sdkVersion,
     submittedVia: metadata?.submittedVia,
     thumbnailUrl: metadata?.thumbnailUrl,
+    issueContext: metadata?.issueContext,
   }
 }
 

@@ -10,7 +10,10 @@ import { Textarea } from "../components/primitives/textarea"
 import { ScreenshotAnnotationEditor } from "../components/screenshot-annotation-editor"
 import { SummaryStat } from "../components/summary-stat"
 import { useReviewForm } from "../hooks/use-review-form"
-import { capturePriorityOptions } from "../utils/review-form-schema"
+import {
+  capturePriorityOptions,
+  captureSurfaceOptions,
+} from "../utils/review-form-schema"
 import {
   createAnnotatedScreenshotBlob,
   type ScreenshotAnnotation,
@@ -142,19 +145,19 @@ export function ReviewFormSection({
             </Field>
 
             <Field data-invalid={Boolean(form.visibleErrors.description)}>
-              <Label htmlFor={`${formKey}-description`}>Description</Label>
+              <Label htmlFor={`${formKey}-description`}>Summary</Label>
               <Textarea
                 aria-invalid={Boolean(form.visibleErrors.description)}
-                className="min-h-32 resize-y"
+                className="min-h-24 resize-y"
                 id={`${formKey}-description`}
-                maxLength={4000}
+                maxLength={3000}
                 onBlur={() => {
                   form.touchField("description")
                 }}
                 onChange={(event) => {
                   form.setFieldValue("description", event.currentTarget.value)
                 }}
-                placeholder="Enter a description (optional)"
+                placeholder="Briefly describe the issue"
                 value={form.draft.description}
               />
               {form.visibleErrors.description ? (
@@ -162,34 +165,141 @@ export function ReviewFormSection({
               ) : null}
             </Field>
 
-            <Field data-invalid={Boolean(form.visibleErrors.priority)}>
-              <Label htmlFor={`${formKey}-priority`}>Priority</Label>
-              <select
-                aria-invalid={Boolean(form.visibleErrors.priority)}
-                className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/60"
-                id={`${formKey}-priority`}
+            <Field data-invalid={Boolean(form.visibleErrors.stepsToReproduce)}>
+              <Label htmlFor={`${formKey}-steps`}>Steps to reproduce</Label>
+              <Textarea
+                aria-invalid={Boolean(form.visibleErrors.stepsToReproduce)}
+                className="min-h-28 resize-y"
+                id={`${formKey}-steps`}
+                maxLength={4000}
                 onBlur={() => {
-                  form.touchField("priority")
+                  form.touchField("stepsToReproduce")
                 }}
                 onChange={(event) => {
                   form.setFieldValue(
-                    "priority",
-                    event.currentTarget
-                      .value as CaptureSubmissionDraft["priority"]
+                    "stepsToReproduce",
+                    event.currentTarget.value
                   )
                 }}
-                value={form.draft.priority}
-              >
-                {capturePriorityOptions.map((priority) => (
-                  <option key={priority.value} value={priority.value}>
-                    {priority.label}
-                  </option>
-                ))}
-              </select>
-              {form.visibleErrors.priority ? (
-                <FieldError errors={[form.visibleErrors.priority]} />
+                placeholder={"1. Open...\n2. Click...\n3. Observe..."}
+                value={form.draft.stepsToReproduce ?? ""}
+              />
+              {form.visibleErrors.stepsToReproduce ? (
+                <FieldError errors={[form.visibleErrors.stepsToReproduce]} />
               ) : null}
             </Field>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                data-invalid={Boolean(form.visibleErrors.expectedBehavior)}
+              >
+                <Label htmlFor={`${formKey}-expected`}>Expected behavior</Label>
+                <Textarea
+                  aria-invalid={Boolean(form.visibleErrors.expectedBehavior)}
+                  className="min-h-24 resize-y"
+                  id={`${formKey}-expected`}
+                  maxLength={2000}
+                  onBlur={() => {
+                    form.touchField("expectedBehavior")
+                  }}
+                  onChange={(event) => {
+                    form.setFieldValue(
+                      "expectedBehavior",
+                      event.currentTarget.value
+                    )
+                  }}
+                  placeholder="What should happen?"
+                  value={form.draft.expectedBehavior ?? ""}
+                />
+                {form.visibleErrors.expectedBehavior ? (
+                  <FieldError errors={[form.visibleErrors.expectedBehavior]} />
+                ) : null}
+              </Field>
+
+              <Field data-invalid={Boolean(form.visibleErrors.actualBehavior)}>
+                <Label htmlFor={`${formKey}-actual`}>Actual behavior</Label>
+                <Textarea
+                  aria-invalid={Boolean(form.visibleErrors.actualBehavior)}
+                  className="min-h-24 resize-y"
+                  id={`${formKey}-actual`}
+                  maxLength={2000}
+                  onBlur={() => {
+                    form.touchField("actualBehavior")
+                  }}
+                  onChange={(event) => {
+                    form.setFieldValue(
+                      "actualBehavior",
+                      event.currentTarget.value
+                    )
+                  }}
+                  placeholder="What happened instead?"
+                  value={form.draft.actualBehavior ?? ""}
+                />
+                {form.visibleErrors.actualBehavior ? (
+                  <FieldError errors={[form.visibleErrors.actualBehavior]} />
+                ) : null}
+              </Field>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field data-invalid={Boolean(form.visibleErrors.surface)}>
+                <Label htmlFor={`${formKey}-surface`}>Surface</Label>
+                <select
+                  aria-invalid={Boolean(form.visibleErrors.surface)}
+                  className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/60"
+                  id={`${formKey}-surface`}
+                  onBlur={() => {
+                    form.touchField("surface")
+                  }}
+                  onChange={(event) => {
+                    form.setFieldValue(
+                      "surface",
+                      event.currentTarget
+                        .value as CaptureSubmissionDraft["surface"]
+                    )
+                  }}
+                  value={form.draft.surface ?? "unknown"}
+                >
+                  {captureSurfaceOptions.map((surface) => (
+                    <option key={surface.value} value={surface.value}>
+                      {surface.label}
+                    </option>
+                  ))}
+                </select>
+                {form.visibleErrors.surface ? (
+                  <FieldError errors={[form.visibleErrors.surface]} />
+                ) : null}
+              </Field>
+
+              <Field data-invalid={Boolean(form.visibleErrors.priority)}>
+                <Label htmlFor={`${formKey}-priority`}>Priority</Label>
+                <select
+                  aria-invalid={Boolean(form.visibleErrors.priority)}
+                  className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/60"
+                  id={`${formKey}-priority`}
+                  onBlur={() => {
+                    form.touchField("priority")
+                  }}
+                  onChange={(event) => {
+                    form.setFieldValue(
+                      "priority",
+                      event.currentTarget
+                        .value as CaptureSubmissionDraft["priority"]
+                    )
+                  }}
+                  value={form.draft.priority}
+                >
+                  {capturePriorityOptions.map((priority) => (
+                    <option key={priority.value} value={priority.value}>
+                      {priority.label}
+                    </option>
+                  ))}
+                </select>
+                {form.visibleErrors.priority ? (
+                  <FieldError errors={[form.visibleErrors.priority]} />
+                ) : null}
+              </Field>
+            </div>
             <div className="grid grid-cols-2 gap-2">
               <Button
                 className="w-full"

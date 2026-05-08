@@ -154,6 +154,7 @@ mock.module(CAPTURE_MEDIA_PATH, () => ({
 
     return Promise.resolve(sdkTestState.screenshotBlob)
   },
+  captureScreenshotFromFile: () => Promise.resolve(sdkTestState.screenshotBlob),
   startDisplayRecording: () => {
     if (sdkTestState.startRecordingError) {
       return Promise.reject(sdkTestState.startRecordingError)
