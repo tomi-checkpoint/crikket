@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process"
 import { watch } from "node:fs"
 import {
+  copyFile,
   mkdir,
   readdir,
   readFile,
@@ -42,6 +43,7 @@ const GENERATED_WATCH_IGNORE_FILENAMES = new Set([
   "capture.global.js",
   "capture.global.js.map",
 ])
+const PUBLIC_GLOBAL_BUNDLE_PATH = "../../apps/web/public/sdk/capture.global.js"
 const shouldWatch = process.argv.includes("--watch")
 
 async function main(): Promise<void> {
@@ -111,6 +113,7 @@ async function buildOnce(input: { emitDeclarations: boolean }): Promise<void> {
     launcherCss,
     widgetCss,
   })
+  await syncPublicGlobalBundle()
 
   if (input.emitDeclarations) {
     const exitCode = await runCommand([
@@ -349,6 +352,10 @@ async function moveGeneratedGlobalBuildOutput(): Promise<void> {
   if (await pathExists("./src/capture.global.js.map")) {
     await rename("./src/capture.global.js.map", "./dist/capture.global.js.map")
   }
+}
+
+async function syncPublicGlobalBundle(): Promise<void> {
+  await copyFile("./dist/capture.global.js", PUBLIC_GLOBAL_BUNDLE_PATH)
 }
 
 async function pathExists(filePath: string): Promise<boolean> {
