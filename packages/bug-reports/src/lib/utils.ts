@@ -71,6 +71,17 @@ export const metadataInputSchema = z
     pageTitle: z.string().max(300).optional(),
     sdkVersion: z.string().max(40).optional(),
     submittedVia: z.string().max(40).optional(),
+    issueContext: z
+      .object({
+        summary: z.string().max(4000).optional(),
+        reproSteps: z.string().max(4000).optional(),
+        expectedBehavior: z.string().max(2000).optional(),
+        actualBehavior: z.string().max(2000).optional(),
+        surface: z
+          .enum(["frontend", "backend", "both", "unknown"])
+          .default("unknown"),
+      })
+      .optional(),
   })
   .optional()
 

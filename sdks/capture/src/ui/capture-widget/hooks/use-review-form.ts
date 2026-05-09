@@ -10,8 +10,12 @@ type ReviewDraftField = keyof CaptureSubmissionDraft
 type ReviewDraftTouched = Record<ReviewDraftField, boolean>
 
 const INITIAL_TOUCHED_STATE: ReviewDraftTouched = {
+  actualBehavior: false,
   description: false,
+  expectedBehavior: false,
   priority: false,
+  stepsToReproduce: false,
+  surface: false,
   title: false,
   visibility: false,
 }
@@ -76,8 +80,12 @@ export function useReviewForm(input: {
     event.stopPropagation()
 
     setTouched({
+      actualBehavior: true,
       description: true,
+      expectedBehavior: true,
       priority: true,
+      stepsToReproduce: true,
+      surface: true,
       title: true,
       visibility: true,
     })

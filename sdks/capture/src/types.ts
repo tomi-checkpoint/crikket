@@ -3,6 +3,7 @@ import type * as eagerCapture from "./eager"
 export type CaptureType = "video" | "screenshot"
 export type CapturePriority = "none" | "low" | "medium" | "high" | "critical"
 export type CaptureReportVisibility = "public" | "private"
+export type CaptureIssueSurface = "frontend" | "backend" | "both" | "unknown"
 
 export type DebuggerActionType =
   | "click"
@@ -101,6 +102,10 @@ export interface CaptureDebuggerSummary {
 export interface CaptureSubmissionDraft {
   title: string
   description: string
+  stepsToReproduce?: string
+  expectedBehavior?: string
+  actualBehavior?: string
+  surface?: CaptureIssueSurface
   priority: CapturePriority
   visibility?: CaptureReportVisibility
 }
@@ -111,6 +116,10 @@ export interface CaptureSubmitRequest {
     captureType: CaptureType
     title: string
     description: string
+    stepsToReproduce: string
+    expectedBehavior: string
+    actualBehavior: string
+    surface: CaptureIssueSurface
     priority: CapturePriority
     visibility: CaptureReportVisibility
     pageUrl: string

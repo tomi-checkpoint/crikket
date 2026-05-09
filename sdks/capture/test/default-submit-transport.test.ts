@@ -16,6 +16,10 @@ const request = {
     captureType: "screenshot",
     title: "Checkout issue",
     description: "Button is disabled",
+    stepsToReproduce: "1. Open checkout\n2. Click submit",
+    expectedBehavior: "The checkout submits.",
+    actualBehavior: "The button remains disabled.",
+    surface: "frontend",
     priority: "high",
     visibility: "public",
     pageUrl: "https://example.com/checkout",
@@ -169,6 +173,26 @@ describe("default submit transport regression", () => {
       },
       method: "POST",
       mode: "cors",
+    })
+    expect(
+      JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body))
+    ).toMatchObject({
+      description: [
+        "### Summary\nButton is disabled",
+        "### Repro Steps\n1. Open checkout\n2. Click submit",
+        "### Expected Behavior\nThe checkout submits.",
+        "### Actual Behavior\nThe button remains disabled.",
+        "### Surface\nfrontend",
+      ].join("\n\n"),
+      metadata: {
+        issueContext: {
+          actualBehavior: "The button remains disabled.",
+          expectedBehavior: "The checkout submits.",
+          reproSteps: "1. Open checkout\n2. Click submit",
+          summary: "Button is disabled",
+          surface: "frontend",
+        },
+      },
     })
     expect(fetchMock.mock.calls[2]?.[0]).toBe(
       "https://storage.example.com/capture-upload"
