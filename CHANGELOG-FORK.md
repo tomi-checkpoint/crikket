@@ -46,17 +46,16 @@ Both server and web are pushed via the `crikket` skill:
 ~/.claude/skills/crikket/bin/crikket deploy-fork web
 ```
 
-### Shipping an SDK change to production (read this — it has a footgun)
+### Shipping an SDK change to production
 
-The served bundle at `https://crikket.gotomarketpro.de/sdk/capture.global.js` is **not** built from `sdks/capture/dist/` at deploy time. It is a git-tracked static file at `apps/web/public/sdk/capture.global.js` that Next.js serves verbatim. **Nothing** — not `next build`, not `crikket deploy-fork web` — copies `dist/` into `public/sdk/`. (`deploy-fork web` runs `railway up`, which uploads the working tree; the served file is whatever is in `public/sdk/`.)
+The served bundle at `https://crikket.gotomarketpro.de/sdk/capture.global.js` is the git-tracked file `apps/web/public/sdk/capture.global.js` that Next.js serves verbatim. As of PR #2, the SDK build **auto-copies** `dist/capture.global.js` → `apps/web/public/sdk/capture.global.js` (`sdks/capture/scripts/build.ts` → `copyFile(..., PUBLIC_GLOBAL_BUNDLE_PATH)`), and the `web` Docker build rebuilds the SDK via turbo `^build`, so a `deploy-fork web` regenerates and serves the bundle from current source. (Earlier this copy was manual — skipping it made deploys a silent no-op for SDK changes. That footgun is now fixed by the automated copy.)
 
 So after editing `sdks/capture/src/` or `packages/capture-core/src/`:
 
 ```bash
-bunx turbo run build --filter=@crikket-io/capture          # builds capture-core then the SDK
-cp sdks/capture/dist/capture.global.js apps/web/public/sdk/capture.global.js
-git add apps/web/public/sdk/capture.global.js              # commit the regenerated bundle
+bunx turbo run build --filter=@crikket-io/capture   # builds capture-core + SDK; auto-copies the bundle into apps/web/public/sdk/
+git add sdks/capture apps/web/public/sdk/capture.global.js
 ~/.claude/skills/crikket/bin/crikket deploy-fork web
 ```
 
-Skip the `cp` and production keeps serving the old bundle (the deploy is a silent no-op for SDK changes). Customer sites load that URL directly; no SRI hash should ever be pinned against it.
+The served bundle is Railway's build of the committed source, so its bytes (md5) won't match a local build, but the behavior is identical. Customer sites load that URL directly; no SRI hash should ever be pinned against it.
