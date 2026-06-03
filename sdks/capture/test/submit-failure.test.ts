@@ -27,6 +27,10 @@ describe("capture SDK submit failure regression", () => {
       capture.submit({
         title: "Failed report",
         description: "Regression path",
+        stepsToReproduce: "1. Trigger the failing path",
+        expectedBehavior: "The report should submit.",
+        actualBehavior: "The submission fails.",
+        surface: "frontend",
         priority: "medium",
       })
     ).rejects.toThrow("Submission failed hard.")

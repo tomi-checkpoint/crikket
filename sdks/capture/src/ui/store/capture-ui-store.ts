@@ -52,6 +52,10 @@ export function createCaptureUiStore(): CaptureUiStore {
       reviewDraft: {
         title: "",
         description: "",
+        stepsToReproduce: "",
+        expectedBehavior: "",
+        actualBehavior: "",
+        surface: "unknown",
         priority: DEFAULT_PRIORITY,
         visibility: BUG_REPORT_VISIBILITY_OPTIONS.private,
       },
@@ -150,6 +154,10 @@ function createInitialState(): CaptureUiState {
     reviewDraft: {
       title: "",
       description: "",
+      stepsToReproduce: "",
+      expectedBehavior: "",
+      actualBehavior: "",
+      surface: "unknown",
       priority: DEFAULT_PRIORITY,
       visibility: BUG_REPORT_VISIBILITY_OPTIONS.private,
     },

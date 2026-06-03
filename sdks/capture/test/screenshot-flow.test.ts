@@ -63,6 +63,10 @@ describe("capture SDK screenshot flow", () => {
     const submitResult = await capture.submit({
       title: " Checkout submit is broken ",
       description: " Description from regression test ",
+      stepsToReproduce: " 1. Open checkout\n2. Click submit ",
+      expectedBehavior: " Submit button sends the form ",
+      actualBehavior: " Submit button stays disabled ",
+      surface: "frontend",
       priority: "high",
     })
 
@@ -82,6 +86,10 @@ describe("capture SDK screenshot flow", () => {
         captureType: "screenshot",
         title: "Checkout submit is broken",
         description: "Description from regression test",
+        stepsToReproduce: "1. Open checkout\n2. Click submit",
+        expectedBehavior: "Submit button sends the form",
+        actualBehavior: "Submit button stays disabled",
+        surface: "frontend",
         priority: "high",
         visibility: "private",
         pageTitle: "Buggy Checkout",
