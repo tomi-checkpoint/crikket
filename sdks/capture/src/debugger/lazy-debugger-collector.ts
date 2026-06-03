@@ -13,6 +13,21 @@ export class LazyDebuggerCollector {
   private collector: DebuggerCollectorInstance | null = null
   private collectorPromise: Promise<DebuggerCollectorInstance> | null = null
 
+  /**
+   * Install the page runtime (console/network/action hooks + message listener)
+   * without starting a capture session, so the pre-capture buffer is warm by
+   * the time a screenshot is taken. Best-effort: failures are swallowed because
+   * buffering is non-critical and must never break SDK init. Idempotent — a
+   * later session start reuses the same collector.
+   */
+  async prime(): Promise<void> {
+    try {
+      await this.ensureCollector()
+    } catch {
+      // Debugger buffering is best-effort; never let it break the host page.
+    }
+  }
+
   async startScreenshotSession(): Promise<void> {
     const collector = await this.ensureCollector()
     collector.startSession("screenshot", SCREENSHOT_LOOKBACK_MS)

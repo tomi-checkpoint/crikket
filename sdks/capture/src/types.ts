@@ -83,6 +83,18 @@ export interface CaptureInitOptions {
   submitPath?: string
   zIndex?: number
   submitTransport?: CaptureSubmitTransport
+  /**
+   * Install console/network/action capture eagerly at init so the pre-capture
+   * buffer is warm before the user takes a screenshot. Defaults to `true` for
+   * allow-listed keys (see `EAGER_DEBUGGER_KEYS`) and `false` otherwise. Pass
+   * `true` to opt a site in, or `false` to opt an allow-listed site out.
+   *
+   * Note: this takes effect from page load only in the global IIFE build
+   * (`capture.global.js`, loaded via a script tag). In the npm/ESM build, which
+   * defers the full runtime until the launcher is opened, eager buffering does
+   * not begin until that runtime loads.
+   */
+  eagerDebugger?: boolean
 }
 
 export interface CaptureRuntimeConfig {

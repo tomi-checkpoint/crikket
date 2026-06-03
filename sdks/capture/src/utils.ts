@@ -2,6 +2,7 @@ import {
   DEFAULT_ENDPOINT,
   DEFAULT_SUBMIT_PATH,
   DEFAULT_Z_INDEX,
+  EAGER_DEBUGGER_KEYS,
   TRAILING_SLASHES_REGEX,
 } from "./constants"
 import type { BridgePayload } from "./types"
@@ -39,6 +40,22 @@ export function normalizeZIndex(value?: number): number {
   }
 
   return Math.max(1, Math.floor(value))
+}
+
+/**
+ * Decide whether to install debugger/console capture eagerly at init. An
+ * explicit `eagerDebugger` option always wins; otherwise the (normalized)
+ * public key is checked against the eager allow-list.
+ */
+export function shouldEagerlyCaptureDebugger(
+  key: string,
+  eagerDebugger?: boolean
+): boolean {
+  if (typeof eagerDebugger === "boolean") {
+    return eagerDebugger
+  }
+
+  return EAGER_DEBUGGER_KEYS.has(key)
 }
 
 export function isBridgePayload(value: unknown): value is BridgePayload {
