@@ -80,6 +80,11 @@ Available options:
 - `mountTarget`: custom element to mount into; defaults to `document.body`
 - `submitPath`: custom bug report base path; defaults to `/api/embed/bug-reports`
 - `zIndex`: custom widget stacking order
+- `eagerDebugger`: install console/network/action capture at `init()` instead of
+  when a capture session starts, so the rolling pre-capture buffer is warm and
+  screenshots include the recent console/network history that led to the bug.
+  Defaults to `false`; pass `true` to opt in (`false` opts out an allow-listed
+  key). Takes effect from page load only in the global script-tag build.
 
 `submitPath` is used as the base path for the capture control-plane flow. By
 default the SDK derives these routes from `/api/embed/bug-reports`:
