@@ -6,6 +6,7 @@ import type {
   CaptureSubmitResult,
   ReviewSnapshot,
 } from "../../src/types"
+import type { CaptureUiCallbacks } from "../../src/ui/types"
 
 const MOUNT_CAPTURE_LAUNCHER_PATH = fileURLToPath(
   new URL("../../src/ui/mount-capture-launcher.ts", import.meta.url)
@@ -66,6 +67,7 @@ export const sdkTestState = {
   titlePrefills: [] as string[],
   uiUnmounts: 0,
   installCalls: 0,
+  lastUiCallbacks: null as CaptureUiCallbacks | null,
   startSessionCalls: [] as StartSessionCall[],
   markRecordingStartedCalls: [] as number[],
   finalizeSessionCalls: 0,
@@ -107,11 +109,16 @@ mock.module(MOUNT_CAPTURE_LAUNCHER_PATH, () => ({
 }))
 
 mock.module(MOUNT_CAPTURE_UI_PATH, () => ({
-  mountCaptureUi: (target: unknown, zIndex: number) => {
+  mountCaptureUi: (
+    target: unknown,
+    zIndex: number,
+    callbacks: CaptureUiCallbacks
+  ) => {
     sdkTestState.uiMounts.push({
       target,
       zIndex,
     })
+    sdkTestState.lastUiCallbacks = callbacks
 
     return {
       setHidden: (hidden: boolean) => {
@@ -278,6 +285,7 @@ export function resetSdkTestState(): void {
   sdkTestState.titlePrefills = []
   sdkTestState.uiUnmounts = 0
   sdkTestState.installCalls = 0
+  sdkTestState.lastUiCallbacks = null
   sdkTestState.startSessionCalls = []
   sdkTestState.markRecordingStartedCalls = []
   sdkTestState.finalizeSessionCalls = 0

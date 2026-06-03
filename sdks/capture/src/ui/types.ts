@@ -42,6 +42,7 @@ export interface CaptureUiHandlers {
 }
 
 export interface CaptureUiCallbacks {
+  onLauncherClick: () => void
   onClose: () => void
   onStartVideo: () => Promise<{ startedAt: number }>
   onTakeScreenshot: () => Promise<void>

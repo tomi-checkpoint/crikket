@@ -62,6 +62,7 @@ export function useCaptureUiHandlers(
     isSubmitPending,
     handlers: {
       onLauncherClick: () => {
+        input.callbacks.onLauncherClick()
         input.callbacks.onReset()
         input.store.openChooser()
       },

@@ -21,7 +21,6 @@ import {
   normalizeKey,
   normalizeSubmitPath,
   normalizeZIndex,
-  shouldEagerlyCaptureDebugger,
 } from "../utils"
 
 export class CaptureSdkRuntime implements CaptureRuntimeController {
@@ -44,15 +43,6 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
 
     this.runtimeConfig = config
     this.submitTransport = options.submitTransport
-
-    if (
-      typeof window !== "undefined" &&
-      shouldEagerlyCaptureDebugger(config.key, options.eagerDebugger)
-    ) {
-      // Warm the pre-capture buffer from page load so screenshots include
-      // console/network/action history. Fire-and-forget; prime() never rejects.
-      this.debuggerCollector.prime().catch(() => undefined)
-    }
 
     if (options.autoMount ?? true) {
       this.mount(options.mountTarget)
@@ -109,6 +99,12 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
       onReset: () => {
         this.reset()
       },
+      onLauncherClick: () => {
+        // Start console/network/action capture only once the user opens the
+        // feedback widget — never at page load (eager-at-load capture looked
+        // like a data skimmer and hurt host-domain reputation).
+        this.primeDebugger()
+      },
     })
     this.mountedTarget = mountTarget
   }
@@ -128,7 +124,14 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
       this.mount()
     }
 
+    this.primeDebugger()
     this.mountedUi?.store.openChooser()
+  }
+
+  private primeDebugger(): void {
+    // Install the debugger page runtime (console/network/action capture) on
+    // demand when the widget opens. Fire-and-forget; prime() never rejects.
+    this.debuggerCollector.prime().catch(() => undefined)
   }
 
   close(): void {
