@@ -34,6 +34,7 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
   private currentMedia: CapturedMedia | null = null
   private currentReview: ReviewSnapshot | null = null
   private consoleSessionActive = false
+  private consoleSessionStartedAt: number | null = null
   private consoleSessionTimer: ReturnType<typeof setTimeout> | null = null
 
   init(options: CaptureInitOptions): CaptureRuntimeController {
@@ -113,6 +114,10 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
         // feedback widget — never at page load (eager-at-load capture looked
         // like a data skimmer and hurt host-domain reputation).
         this.primeDebugger()
+        // Report any live console session so re-opening the widget resumes it
+        // (shows the "capture in progress" chooser) instead of resetting and
+        // discarding the events captured so far.
+        return this.isConsoleSessionActive()
       },
     })
     this.mountedTarget = mountTarget
@@ -122,6 +127,7 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
     this.abortActiveRecording()
     this.clearConsoleTimeout()
     this.consoleSessionActive = false
+    this.consoleSessionStartedAt = null
     this.setUiHidden(false)
     this.mountedUi?.unmount()
     this.mountedUi = null
@@ -219,15 +225,28 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
   async startConsoleSession(): Promise<{ startedAt: number }> {
     this.getRuntimeConfig()
     this.ensureBrowserContext()
+    // Idempotent: if a console session is already running (e.g. the user
+    // re-opened the widget and clicked "Capture console logs" again), resume it
+    // instead of starting a new one. Restarting would call startSession() again
+    // and DISCARD the console + action events captured so far — the root cause
+    // of "0 logs" reports.
+    if (this.consoleSessionActive && this.consoleSessionStartedAt !== null) {
+      return { startedAt: this.consoleSessionStartedAt }
+    }
     // A console session and a video recording both own the single debugger
     // session + the open dock, so they are mutually exclusive.
     this.abortActiveRecording()
     await this.debuggerCollector.startConsoleSession()
     const startedAt = Date.now()
     this.consoleSessionActive = true
+    this.consoleSessionStartedAt = startedAt
     this.startConsoleTimeout()
 
     return { startedAt }
+  }
+
+  isConsoleSessionActive(): number | null {
+    return this.consoleSessionActive ? this.consoleSessionStartedAt : null
   }
 
   stopConsoleSession(): void {
@@ -317,6 +336,7 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
     this.abortActiveRecording()
     this.clearConsoleTimeout()
     this.consoleSessionActive = false
+    this.consoleSessionStartedAt = null
     this.setUiHidden(false)
     this.clearMedia()
     this.currentReview = null
@@ -388,6 +408,7 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
       // step history accumulated during the session.
       this.clearConsoleTimeout()
       this.consoleSessionActive = false
+      this.consoleSessionStartedAt = null
       return
     }
 
@@ -415,6 +436,7 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
 
     this.clearConsoleTimeout()
     this.consoleSessionActive = false
+    this.consoleSessionStartedAt = null
     this.debuggerCollector.clearSession()
     this.setUiHidden(false)
     this.mountedUi?.store.close()

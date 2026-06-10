@@ -74,13 +74,16 @@ export function createCaptureUiStore(): CaptureUiStore {
       }
     },
     patchState,
-    openChooser: () => {
+    openChooser: (options) => {
       patchState({
         overlayOpen: true,
         recordingDockOpen: false,
         consoleDockOpen: false,
         recordingStartedAt: null,
-        consoleSessionStartedAt: null,
+        // Preserve a live console session's start time when re-opening the
+        // widget mid-session, so the chooser shows "capture in progress" and
+        // the running session is finalized by the screenshot (not discarded).
+        consoleSessionStartedAt: options?.consoleSessionStartedAt ?? null,
         view: "chooser",
         errorMessage: null,
         busy: false,

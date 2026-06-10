@@ -1,3 +1,4 @@
+import { DEBUGGER_DRAIN_GLOBAL } from "../../constants"
 import { installActionAndNavigationCapture } from "./actions"
 import { installConsoleCapture } from "./console"
 import { INSTALL_FLAG } from "./constants"
@@ -11,6 +12,7 @@ import { createNonFatalReporter, truncate } from "./utils"
 export function installDebuggerPageRuntime(): void {
   const scope = window as Window & {
     [INSTALL_FLAG]?: boolean
+    [DEBUGGER_DRAIN_GLOBAL]?: () => unknown[]
   }
 
   if (scope[INSTALL_FLAG]) {
@@ -21,10 +23,17 @@ export function installDebuggerPageRuntime(): void {
 
   const diagnostics = createPageDiagnostics(window)
   const reporter = diagnostics.createReporter(createNonFatalReporter())
-  const { enqueueEvent, flushEventQueue } = createEventQueue({
-    recordQueuedEvent: diagnostics.recordQueuedEvent,
-    recordFlushedBatch: diagnostics.recordFlushedBatch,
-  })
+  const { enqueueEvent, flushEventQueue, drainPendingEvents } = createEventQueue(
+    {
+      recordQueuedEvent: diagnostics.recordQueuedEvent,
+      recordFlushedBatch: diagnostics.recordFlushedBatch,
+    }
+  )
+
+  // Let a same-realm collector pull queued-but-unflushed events synchronously
+  // when finalizing a capture, so the tail of a session isn't lost to the
+  // async postMessage flush.
+  scope[DEBUGGER_DRAIN_GLOBAL] = drainPendingEvents
   const stringifyValue = createStringifyValue(reporter)
 
   const postAction = (

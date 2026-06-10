@@ -1,4 +1,7 @@
-import { PAGE_BRIDGE_SOURCE } from "@crikket/capture-core/debugger/constants"
+import {
+  DEBUGGER_DRAIN_GLOBAL,
+  PAGE_BRIDGE_SOURCE,
+} from "@crikket/capture-core/debugger/constants"
 import {
   appendActionEventWithDedup,
   appendEventWithRetentionPolicy,
@@ -123,6 +126,11 @@ export class DebuggerCollector {
       }
     }
 
+    // Pull any events still sitting in the page runtime's batch queue (not yet
+    // flushed via the async postMessage bridge) so the tail of the session
+    // isn't dropped at finalize time.
+    this.drainPendingPageEvents()
+
     const payload = buildDebuggerSubmissionPayload({
       sessionId: this.session.sessionId,
       captureTabId: 0,
@@ -156,6 +164,42 @@ export class DebuggerCollector {
       warnings,
       debuggerSummary,
       debuggerPayload: hasPayload ? payload : undefined,
+    }
+  }
+
+  private drainPendingPageEvents(): void {
+    if (!this.session || typeof window === "undefined") {
+      return
+    }
+
+    const scope = window as Window & {
+      [DEBUGGER_DRAIN_GLOBAL]?: () => unknown[]
+    }
+    const drain = scope[DEBUGGER_DRAIN_GLOBAL]
+    if (typeof drain !== "function") {
+      return
+    }
+
+    let pending: unknown[]
+    try {
+      pending = drain()
+    } catch {
+      // Best-effort tail capture; never let it break finalize.
+      return
+    }
+
+    if (!Array.isArray(pending)) {
+      return
+    }
+
+    for (const candidate of pending) {
+      const normalized = normalizeDebuggerEvent(candidate)
+      if (!normalized) {
+        continue
+      }
+
+      this.appendEvent(this.recentEvents, normalized)
+      this.appendEvent(this.session.events, normalized)
     }
   }
 

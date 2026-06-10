@@ -62,15 +62,17 @@ export function useCaptureUiHandlers(
     isSubmitPending,
     handlers: {
       onLauncherClick: () => {
-        // Re-opening the widget DURING an active console session must NOT reset
-        // it (that would wipe the captured console + steps). The user re-opens
-        // to take the finalizing screenshot.
-        const consoleActive =
-          input.store.getSnapshot().consoleSessionStartedAt !== null
-        input.callbacks.onLauncherClick()
-        if (!consoleActive) {
-          input.callbacks.onReset()
+        // The runtime is the source of truth for whether a console session is
+        // live. Re-opening the widget mid-session must NOT reset it (that wipes
+        // the captured console + steps); it must keep the session marker so the
+        // chooser shows "capture in progress" and the finalizing screenshot
+        // attaches to the running session instead of discarding it.
+        const consoleSessionStartedAt = input.callbacks.onLauncherClick()
+        if (consoleSessionStartedAt !== null) {
+          input.store.openChooser({ consoleSessionStartedAt })
+          return
         }
+        input.callbacks.onReset()
         input.store.openChooser()
       },
       onClose: () => {

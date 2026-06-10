@@ -25,6 +25,25 @@ describe("console capture session", () => {
     runtime.reset()
   })
 
+  test("re-starting an active console session resumes it instead of discarding captured events", async () => {
+    const runtime = new CaptureSdkRuntime()
+    runtime.init({ key: KEY, host: HOST })
+
+    const first = await runtime.startConsoleSession()
+    // Simulate the user re-opening the widget and clicking "Capture console
+    // logs" again. This MUST NOT start a second debugger session — doing so
+    // calls startSession() again and discards the console + action events
+    // captured so far (the root cause of "0 logs" reports).
+    const second = await runtime.startConsoleSession()
+
+    expect(sdkTestState.startSessionCalls).toEqual([
+      { captureType: "screenshot", lookbackMs: 0 },
+    ])
+    expect(second.startedAt).toBe(first.startedAt)
+
+    runtime.reset()
+  })
+
   test("a screenshot during a console session preserves it (no fresh session) and finalizes", async () => {
     const runtime = new CaptureSdkRuntime()
     runtime.init({ key: KEY, host: HOST })

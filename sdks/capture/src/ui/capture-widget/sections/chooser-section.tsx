@@ -4,6 +4,7 @@ import { Button } from "../components/primitives/button"
 export function ChooserSection(props: {
   busy: boolean
   supportsDisplayMedia: boolean
+  consoleSessionActive: boolean
   onStartConsole: () => void
   onStartVideo: () => void
   onTakeScreenshot: () => void
@@ -29,23 +30,41 @@ export function ChooserSection(props: {
 
   return (
     <section className="grid gap-4 p-5">
-      <p className="m-0 text-muted-foreground text-sm">
-        Choose how to capture the issue.
-      </p>
+      {props.consoleSessionActive ? (
+        <div className="grid gap-1 rounded-md border bg-muted px-3 py-2">
+          <p className="m-0 flex items-center gap-2 font-medium text-sm">
+            <span
+              aria-hidden="true"
+              className="size-2 rounded-full bg-foreground"
+            />
+            Console capture in progress
+          </p>
+          <p className="m-0 text-muted-foreground text-xs">
+            Your console logs and clicks are being recorded. Take a screenshot to
+            finish and attach them to your report.
+          </p>
+        </div>
+      ) : (
+        <>
+          <p className="m-0 text-muted-foreground text-sm">
+            Choose how to capture the issue.
+          </p>
 
-      <Button
-        className="w-full"
-        disabled={props.busy}
-        onClick={props.onStartConsole}
-        type="button"
-      >
-        Capture console logs
-      </Button>
-      <p className="m-0 text-muted-foreground text-xs">
-        Records console logs and your clicks while you reproduce the bug. When
-        you&apos;re done, open this widget again and take a screenshot to
-        finish. Stops automatically after 3 minutes.
-      </p>
+          <Button
+            className="w-full"
+            disabled={props.busy}
+            onClick={props.onStartConsole}
+            type="button"
+          >
+            Capture console logs
+          </Button>
+          <p className="m-0 text-muted-foreground text-xs">
+            Records console logs and your clicks while you reproduce the bug.
+            When you&apos;re done, open this widget again and take a screenshot
+            to finish. Stops automatically after 3 minutes.
+          </p>
+        </>
+      )}
 
       <div className={`grid ${secondaryColumns} gap-2`}>
         <Button

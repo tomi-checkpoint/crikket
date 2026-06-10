@@ -46,7 +46,9 @@ export interface CaptureUiHandlers {
 }
 
 export interface CaptureUiCallbacks {
-  onLauncherClick: () => void
+  // Returns the active console session's startedAt (so the UI can resume it on
+  // re-open) or null when no console session is running.
+  onLauncherClick: () => number | null
   onClose: () => void
   onStartVideo: () => Promise<{ startedAt: number }>
   onStartConsole: () => Promise<{ startedAt: number }>
@@ -69,7 +71,7 @@ export interface CaptureUiStore {
   getSnapshot: () => CaptureUiState
   subscribe: (listener: () => void) => () => void
   patchState: (patch: Partial<CaptureUiState>) => void
-  openChooser: () => void
+  openChooser: (options?: { consoleSessionStartedAt?: number | null }) => void
   close: () => void
   showRecording: (startedAt: number) => void
   showConsoleSession: (startedAt: number) => void

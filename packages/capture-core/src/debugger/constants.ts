@@ -4,6 +4,11 @@ export const MAX_URL_LENGTH = 4096
 export const MAX_NETWORK_BODY_LENGTH = 4000
 
 export const PAGE_BRIDGE_SOURCE = "CRIKKET_DEBUGGER_PAGE_BRIDGE"
+// Window global the page runtime exposes so a same-realm collector can pull
+// events still sitting in the batch queue when a capture is finalized (the
+// bridge postMessage flush is async, so the last <120ms would otherwise be
+// lost). See engine/page/event-queue.ts and engine/page/index.ts.
+export const DEBUGGER_DRAIN_GLOBAL = "__crikketDebuggerDrainPendingEvents"
 export const BACKGROUND_LISTENER_FLAG =
   "__crikketDebuggerBackgroundListenerRegistered"
 

@@ -7,6 +7,10 @@ export interface Reporter {
 export interface EventQueue {
   enqueueEvent: (event: unknown) => void
   flushEventQueue: () => void
+  // Synchronously remove and return all queued-but-unflushed events. Used to
+  // capture the tail of a session at finalize time without waiting for the
+  // async postMessage flush.
+  drainPendingEvents: () => unknown[]
 }
 
 export interface PageRuntimeDiagnostics {

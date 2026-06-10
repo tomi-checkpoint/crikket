@@ -61,8 +61,22 @@ export function createEventQueue(
     scheduleEventFlush()
   }
 
+  const drainPendingEvents = (): unknown[] => {
+    if (flushTimer) {
+      clearTimeout(flushTimer)
+      flushTimer = null
+    }
+
+    if (eventQueue.length === 0) {
+      return []
+    }
+
+    return eventQueue.splice(0, eventQueue.length)
+  }
+
   return {
     enqueueEvent,
     flushEventQueue,
+    drainPendingEvents,
   }
 }
