@@ -35,6 +35,10 @@ export function useBugReportsData({
           filters.priorities.length > 0 ? filters.priorities : undefined,
         visibilities:
           filters.visibilities.length > 0 ? filters.visibilities : undefined,
+        capturePublicKeyIds:
+          filters.capturePublicKeyIds.length > 0
+            ? filters.capturePublicKeyIds
+            : undefined,
       }),
       getNextPageParam: (lastPage) =>
         lastPage.pagination.hasNextPage

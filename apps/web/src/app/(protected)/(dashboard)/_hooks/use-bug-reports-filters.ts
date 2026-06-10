@@ -56,11 +56,19 @@ const EMPTY_DASHBOARD_FILTERS: DashboardFilters = {
   statuses: [],
   priorities: [],
   visibilities: [],
+  capturePublicKeyIds: [],
 }
 
 export function useBugReportsFilters() {
   const [
-    { search, sort, statuses, priorities, visibilities },
+    {
+      search,
+      sort,
+      statuses,
+      priorities,
+      visibilities,
+      capturePublicKeyIds,
+    },
     setFilterSearchQuery,
   ] = useQueryStates(
     {
@@ -77,6 +85,9 @@ export function useBugReportsFilters() {
         .withOptions({ clearOnDefault: true })
         .withDefault([]),
       visibilities: parseAsArrayOf(parseAsStringLiteral(VISIBILITY_VALUES))
+        .withOptions({ clearOnDefault: true })
+        .withDefault([]),
+      capturePublicKeyIds: parseAsArrayOf(parseAsString)
         .withOptions({ clearOnDefault: true })
         .withDefault([]),
     },
@@ -101,15 +112,16 @@ export function useBugReportsFilters() {
   }, [debouncedSearch, search, setFilterSearchQuery])
 
   const filters = useMemo<DashboardFilters>(
-    () => ({ statuses, priorities, visibilities }),
-    [statuses, priorities, visibilities]
+    () => ({ statuses, priorities, visibilities, capturePublicKeyIds }),
+    [statuses, priorities, visibilities, capturePublicKeyIds]
   )
 
   const hasFilters = useMemo(
     () =>
       filters.statuses.length > 0 ||
       filters.priorities.length > 0 ||
-      filters.visibilities.length > 0,
+      filters.visibilities.length > 0 ||
+      filters.capturePublicKeyIds.length > 0,
     [filters]
   )
 
@@ -127,6 +139,7 @@ export function useBugReportsFilters() {
         statuses: EMPTY_DASHBOARD_FILTERS.statuses,
         priorities: EMPTY_DASHBOARD_FILTERS.priorities,
         visibilities: EMPTY_DASHBOARD_FILTERS.visibilities,
+        capturePublicKeyIds: EMPTY_DASHBOARD_FILTERS.capturePublicKeyIds,
       }).catch(() => undefined)
     },
     resetFiltersAndSearch: () => {
@@ -136,6 +149,7 @@ export function useBugReportsFilters() {
         statuses: EMPTY_DASHBOARD_FILTERS.statuses,
         priorities: EMPTY_DASHBOARD_FILTERS.priorities,
         visibilities: EMPTY_DASHBOARD_FILTERS.visibilities,
+        capturePublicKeyIds: EMPTY_DASHBOARD_FILTERS.capturePublicKeyIds,
       }).catch(() => undefined)
     },
     hasActiveFilters: hasFilters || debouncedSearch.length > 0,
@@ -150,6 +164,12 @@ export function useBugReportsFilters() {
     toggleVisibility: (value: DashboardFilters["visibilities"][number]) =>
       setFilterSearchQuery({
         visibilities: toggleValue(filters.visibilities, value),
+      }).catch(() => undefined),
+    toggleCapturePublicKey: (
+      value: DashboardFilters["capturePublicKeyIds"][number]
+    ) =>
+      setFilterSearchQuery({
+        capturePublicKeyIds: toggleValue(filters.capturePublicKeyIds, value),
       }).catch(() => undefined),
   }
 }

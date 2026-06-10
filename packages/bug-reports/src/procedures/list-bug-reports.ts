@@ -1,5 +1,5 @@
 import { db } from "@crikket/db"
-import { bugReport } from "@crikket/db/schema/bug-report"
+import { bugReport, capturePublicKey } from "@crikket/db/schema/bug-report"
 import {
   BUG_REPORT_DEBUGGER_INGESTION_STATUS_OPTIONS,
   BUG_REPORT_SORT_OPTIONS,
@@ -16,7 +16,18 @@ import {
   buildPaginationMeta,
   type PaginatedResult,
 } from "@crikket/shared/lib/server/pagination"
-import { and, asc, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm"
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNotNull,
+  or,
+  sql,
+} from "drizzle-orm"
 import { z } from "zod"
 import { isExpiringSignedUrl, resolveCaptureUrl } from "../lib/storage"
 import {
@@ -97,6 +108,7 @@ const listBugReportsInputSchema = z
       .array(z.enum(visibilityValues))
       .max(visibilityValues.length)
       .optional(),
+    capturePublicKeyIds: z.array(z.string().min(1)).max(50).optional(),
     sort: z.enum(sortValues).default(BUG_REPORT_SORT_OPTIONS.newest),
   })
   .optional()
@@ -298,6 +310,47 @@ export const listBugReports = protectedProcedure
         filters.push(
           inArray(bugReport.visibility, Array.from(new Set(input.visibilities)))
         )
+      }
+
+      if (
+        input?.capturePublicKeyIds &&
+        input.capturePublicKeyIds.length > 0
+      ) {
+        const keyIds = Array.from(new Set(input.capturePublicKeyIds))
+        const keyRecords = await db
+          .select({ allowedOrigins: capturePublicKey.allowedOrigins })
+          .from(capturePublicKey)
+          .where(
+            and(
+              inArray(capturePublicKey.id, keyIds),
+              eq(capturePublicKey.organizationId, activeOrgId)
+            )
+          )
+
+        const originPrefixes = Array.from(
+          new Set(
+            keyRecords.flatMap((record) => record.allowedOrigins ?? [])
+          )
+        )
+
+        if (originPrefixes.length === 0) {
+          // Selected keys have no origins yet — return zero rows for clarity
+          return {
+            items: [],
+            pagination: buildPaginationMeta(0, page, perPage),
+          }
+        }
+
+        const originConditions = originPrefixes.flatMap((origin) => [
+          eq(bugReport.url, origin),
+          ilike(bugReport.url, `${origin}/%`),
+          ilike(bugReport.url, `${origin}?%`),
+          ilike(bugReport.url, `${origin}#%`),
+        ])
+        const originMatch = or(...originConditions)
+        if (originMatch) {
+          filters.push(and(isNotNull(bugReport.url), originMatch)!)
+        }
       }
 
       const whereClause =

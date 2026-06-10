@@ -49,6 +49,7 @@ export function BugReportsList() {
         onClearFilters={filtersState.clearFilters}
         onSearchChange={filtersState.setSearchValue}
         onSortChange={filtersState.setSort}
+        onToggleCapturePublicKey={filtersState.toggleCapturePublicKey}
         onTogglePriority={filtersState.togglePriority}
         onToggleStatus={filtersState.toggleStatus}
         onToggleVisibility={filtersState.toggleVisibility}
@@ -65,6 +66,7 @@ export function BugReportsList() {
             bulkTagsInput={actionsState.bulkTagsInput}
             bulkVisibility={actionsState.bulkVisibility}
             isMutating={actionsState.isMutating}
+            onApplyStatus={actionsState.applyBulkStatus}
             onApplyUpdates={actionsState.handleBulkUpdate}
             onBulkPriorityChange={actionsState.setBulkPriority}
             onBulkStatusChange={actionsState.setBulkStatus}
@@ -76,6 +78,30 @@ export function BugReportsList() {
         onClearSelection={actionsState.clearSelection}
         selectedCount={actionsState.selectedCount}
       />
+
+      {reports.length > 0 ? (
+        <div className="flex items-center justify-between gap-2 px-1">
+          <Button
+            disabled={
+              actionsState.selectedCount === reports.length || isLoading
+            }
+            onClick={actionsState.selectAllVisible}
+            size="sm"
+            variant="ghost"
+          >
+            Select all visible ({reports.length})
+          </Button>
+          {actionsState.selectedCount > 0 ? (
+            <Button
+              onClick={actionsState.clearSelection}
+              size="sm"
+              variant="ghost"
+            >
+              Clear selection
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
 
       {isError ? (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">

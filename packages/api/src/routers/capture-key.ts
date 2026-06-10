@@ -1,6 +1,7 @@
 import {
   createCaptureKey,
   deleteCaptureKey,
+  listCaptureKeyLabels,
   listCaptureKeys,
   revokeCaptureKey,
   rotateCaptureKey,
@@ -14,6 +15,7 @@ import {
  */
 export const captureKeyRouter = {
   list: listCaptureKeys,
+  listLabels: listCaptureKeyLabels,
   create: createCaptureKey,
   delete: deleteCaptureKey,
   update: updateCaptureKeyDetails,

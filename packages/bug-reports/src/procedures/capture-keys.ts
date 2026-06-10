@@ -11,7 +11,7 @@ import {
 } from "../lib/capture-public-key"
 import { syncTurnstileDomainsFromOrigins } from "../lib/turnstile-sync"
 import { protectedProcedure } from "./context"
-import { requireActiveOrgAdmin } from "./helpers"
+import { requireActiveOrgAdmin, requireActiveOrgId } from "./helpers"
 
 const captureKeyIdSchema = z.object({
   keyId: z.string().min(1),
@@ -58,6 +58,19 @@ export const listCaptureKeys = protectedProcedure.handler(
     return listCapturePublicKeys({
       organizationId,
     })
+  }
+)
+
+export const listCaptureKeyLabels = protectedProcedure.handler(
+  async ({ context }) => {
+    const organizationId = requireActiveOrgId(context.session)
+
+    const records = await listCapturePublicKeys({ organizationId })
+    return records.map((record) => ({
+      id: record.id,
+      label: record.label,
+      status: record.status,
+    }))
   }
 )
 

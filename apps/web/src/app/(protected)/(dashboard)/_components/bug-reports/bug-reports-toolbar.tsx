@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@crikket/ui/components/ui/select"
+import { useQuery } from "@tanstack/react-query"
 import {
   Filter,
   Search,
@@ -34,6 +35,7 @@ import {
 } from "lucide-react"
 import type { ReactNode } from "react"
 
+import { orpc } from "@/utils/orpc"
 import {
   type DashboardFilters,
   formatPriorityLabel,
@@ -56,6 +58,7 @@ interface BugReportsToolbarProps {
   onToggleStatus: (value: BugReportStatus) => void
   onTogglePriority: (value: Priority) => void
   onToggleVisibility: (value: BugReportVisibility) => void
+  onToggleCapturePublicKey: (value: string) => void
   onClearFilters: () => void
 }
 
@@ -63,7 +66,8 @@ function countActiveFilters(filters: DashboardFilters): number {
   return (
     filters.statuses.length +
     filters.priorities.length +
-    filters.visibilities.length
+    filters.visibilities.length +
+    filters.capturePublicKeyIds.length
   )
 }
 
@@ -77,11 +81,20 @@ export function BugReportsToolbar({
   onToggleStatus,
   onTogglePriority,
   onToggleVisibility,
+  onToggleCapturePublicKey,
   onClearFilters,
 }: BugReportsToolbarProps) {
   const activeFilters = countActiveFilters(filters)
   const selectedSortLabel =
     SORT_OPTIONS.find((option) => option.value === sort)?.label ?? "Sort"
+
+  const captureKeysQuery = useQuery(
+    orpc.captureKey.listLabels.queryOptions()
+  )
+  const captureKeyOptions = captureKeysQuery.data ?? []
+  const captureKeyLabelById = new Map(
+    captureKeyOptions.map((option) => [option.id, option.label])
+  )
 
   return (
     <div className="space-y-3 rounded-lg border bg-card p-3">
@@ -162,6 +175,36 @@ export function BugReportsToolbar({
                   </DropdownMenuCheckboxItem>
                 ))}
               </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Capture Key</DropdownMenuLabel>
+                {captureKeysQuery.isLoading ? (
+                  <DropdownMenuLabel className="text-muted-foreground text-xs font-normal">
+                    Loading…
+                  </DropdownMenuLabel>
+                ) : captureKeyOptions.length === 0 ? (
+                  <DropdownMenuLabel className="text-muted-foreground text-xs font-normal">
+                    No keys yet
+                  </DropdownMenuLabel>
+                ) : (
+                  captureKeyOptions.map((option) => (
+                    <DropdownMenuCheckboxItem
+                      checked={filters.capturePublicKeyIds.includes(option.id)}
+                      key={option.id}
+                      onCheckedChange={() =>
+                        onToggleCapturePublicKey(option.id)
+                      }
+                    >
+                      {option.label}
+                      {option.status === "revoked" ? (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          (revoked)
+                        </span>
+                      ) : null}
+                    </DropdownMenuCheckboxItem>
+                  ))
+                )}
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -205,6 +248,11 @@ export function BugReportsToolbar({
         ))}
         {filters.visibilities.map((visibility) => (
           <Pill key={visibility}>{formatVisibilityLabel(visibility)}</Pill>
+        ))}
+        {filters.capturePublicKeyIds.map((keyId) => (
+          <Pill key={keyId}>
+            Key: {captureKeyLabelById.get(keyId) ?? keyId.slice(0, 8)}
+          </Pill>
         ))}
       </div>
     </div>

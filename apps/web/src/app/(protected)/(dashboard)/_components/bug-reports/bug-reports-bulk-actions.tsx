@@ -15,6 +15,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@crikket/ui/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@crikket/ui/components/ui/dropdown-menu"
 import { Input } from "@crikket/ui/components/ui/input"
 import {
   Select,
@@ -23,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@crikket/ui/components/ui/select"
-import { SlidersHorizontal, Trash2 } from "lucide-react"
+import { CheckCircle2, SlidersHorizontal, Trash2 } from "lucide-react"
 import { useState } from "react"
 
 import {
@@ -46,6 +53,7 @@ interface BugReportsBulkActionsProps {
   onBulkVisibilityChange: (value: BugReportVisibility | "") => void
   onBulkTagsChange: (value: string) => void
   onApplyUpdates: () => Promise<void>
+  onApplyStatus: (value: BugReportStatus) => Promise<void>
   onRequestBulkDelete: () => void
 }
 
@@ -60,6 +68,7 @@ export function BugReportsBulkActions({
   onBulkVisibilityChange,
   onBulkTagsChange,
   onApplyUpdates,
+  onApplyStatus,
   onRequestBulkDelete,
 }: BugReportsBulkActionsProps) {
   const [isEditorOpen, setIsEditorOpen] = useState(false)
@@ -79,6 +88,35 @@ export function BugReportsBulkActions({
 
   return (
     <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              className="flex-1 sm:flex-none"
+              disabled={isMutating}
+              size="sm"
+              variant="outline"
+            />
+          }
+        >
+          <CheckCircle2 className="size-4" />
+          Set status
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-44">
+          <DropdownMenuLabel>Set status to…</DropdownMenuLabel>
+          {STATUS_OPTIONS.map((option) => (
+            <DropdownMenuItem
+              key={option.value}
+              onClick={() => {
+                void onApplyStatus(option.value)
+              }}
+            >
+              {option.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       <Dialog onOpenChange={setIsEditorOpen} open={isEditorOpen}>
         <DialogTrigger
           render={

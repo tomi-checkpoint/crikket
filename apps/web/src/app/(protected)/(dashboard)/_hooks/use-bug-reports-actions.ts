@@ -179,6 +179,21 @@ export function useBugReportsActions({
     })
   }
 
+  const applyBulkStatus = async (status: BugReportStatus) => {
+    if (selectedIdList.length < 1) {
+      return
+    }
+
+    await bulkUpdateMutation.mutateAsync({
+      ids: selectedIdList,
+      status,
+    })
+  }
+
+  const selectAllVisible = () => {
+    setSelectedIds(new Set(reportIds))
+  }
+
   return {
     selectedIds,
     selectedCount,
@@ -205,7 +220,10 @@ export function useBugReportsActions({
     retryIngestionMutation,
     deleteMutation,
     bulkDeleteMutation,
+    bulkUpdateMutation,
     handleBulkDelete,
     handleBulkUpdate,
+    applyBulkStatus,
+    selectAllVisible,
   }
 }
