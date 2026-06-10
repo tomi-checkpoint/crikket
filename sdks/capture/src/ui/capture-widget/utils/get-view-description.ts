@@ -13,5 +13,9 @@ export function getViewDescription(view: CaptureUiState["view"]): string {
     return "Submission complete"
   }
 
+  if (view === "console") {
+    return "Capturing console + steps"
+  }
+
   return "Capture issue details"
 }

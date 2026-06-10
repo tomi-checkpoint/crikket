@@ -40,7 +40,9 @@ export function createCaptureUiStore(): CaptureUiStore {
     patchState({
       overlayOpen: true,
       recordingDockOpen: false,
+      consoleDockOpen: false,
       recordingStartedAt: null,
+      consoleSessionStartedAt: null,
       view: "review",
       errorMessage: null,
       busy: false,
@@ -76,7 +78,9 @@ export function createCaptureUiStore(): CaptureUiStore {
       patchState({
         overlayOpen: true,
         recordingDockOpen: false,
+        consoleDockOpen: false,
         recordingStartedAt: null,
+        consoleSessionStartedAt: null,
         view: "chooser",
         errorMessage: null,
         busy: false,
@@ -86,7 +90,9 @@ export function createCaptureUiStore(): CaptureUiStore {
       patchState({
         overlayOpen: false,
         recordingDockOpen: false,
+        consoleDockOpen: false,
         recordingStartedAt: null,
+        consoleSessionStartedAt: null,
         busy: false,
         errorMessage: null,
       })
@@ -95,8 +101,22 @@ export function createCaptureUiStore(): CaptureUiStore {
       patchState({
         overlayOpen: false,
         recordingDockOpen: true,
+        consoleDockOpen: false,
         recordingStartedAt: startedAt,
+        consoleSessionStartedAt: null,
         view: "recording",
+        errorMessage: null,
+        busy: false,
+      })
+    },
+    showConsoleSession: (startedAt) => {
+      patchState({
+        overlayOpen: false,
+        recordingDockOpen: false,
+        consoleDockOpen: true,
+        recordingStartedAt: null,
+        consoleSessionStartedAt: startedAt,
+        view: "console",
         errorMessage: null,
         busy: false,
       })
@@ -106,7 +126,9 @@ export function createCaptureUiStore(): CaptureUiStore {
       patchState({
         overlayOpen: true,
         recordingDockOpen: false,
+        consoleDockOpen: false,
         recordingStartedAt: null,
+        consoleSessionStartedAt: null,
         view: "success",
         errorMessage: null,
         busy: false,
@@ -143,9 +165,11 @@ function createInitialState(): CaptureUiState {
     view: "chooser",
     overlayOpen: false,
     recordingDockOpen: false,
+    consoleDockOpen: false,
     busy: false,
     errorMessage: null,
     recordingStartedAt: null,
+    consoleSessionStartedAt: null,
     warnings: [],
     summary: { ...DEFAULT_SUMMARY },
     media: null,

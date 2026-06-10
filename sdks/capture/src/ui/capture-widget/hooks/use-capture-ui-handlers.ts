@@ -62,8 +62,15 @@ export function useCaptureUiHandlers(
     isSubmitPending,
     handlers: {
       onLauncherClick: () => {
+        // Re-opening the widget DURING an active console session must NOT reset
+        // it (that would wipe the captured console + steps). The user re-opens
+        // to take the finalizing screenshot.
+        const consoleActive =
+          input.store.getSnapshot().consoleSessionStartedAt !== null
         input.callbacks.onLauncherClick()
-        input.callbacks.onReset()
+        if (!consoleActive) {
+          input.callbacks.onReset()
+        }
         input.store.openChooser()
       },
       onClose: () => {
@@ -78,6 +85,19 @@ export function useCaptureUiHandlers(
             showCaptureError(error)
           }
         })
+      },
+      onStartConsole: () => {
+        startBusyTask(async () => {
+          try {
+            const result = await input.callbacks.onStartConsole()
+            input.store.showConsoleSession(result.startedAt)
+          } catch (error) {
+            showCaptureError(error)
+          }
+        })
+      },
+      onStopConsole: () => {
+        input.callbacks.onStopConsole()
       },
       onTakeScreenshot: () => {
         startBusyTask(async () => {

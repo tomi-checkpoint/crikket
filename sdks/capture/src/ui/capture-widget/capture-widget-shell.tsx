@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./components/primitives/card"
+import { ConsoleDock } from "./sections/console-dock"
 import { RecordingDock } from "./sections/recording-dock"
 import { getViewDescription } from "./utils/get-view-description"
 
@@ -23,6 +24,7 @@ export function CaptureWidgetShell(props: {
   capabilities: CaptureUiCapabilities
   isSubmitPending: boolean
   recordingTime: string
+  consoleRemainingTime: string
 }): React.JSX.Element {
   const isBusy = props.state.busy || props.isSubmitPending
   const isReviewView = props.state.view === "review"
@@ -100,6 +102,15 @@ export function CaptureWidgetShell(props: {
           busy={isBusy}
           onStopRecording={props.handlers.onStopRecording}
           recordingTime={props.recordingTime}
+          zIndex={props.zIndex}
+        />
+      ) : null}
+
+      {props.state.consoleDockOpen ? (
+        <ConsoleDock
+          busy={isBusy}
+          onStopConsole={props.handlers.onStopConsole}
+          remainingTime={props.consoleRemainingTime}
           zIndex={props.zIndex}
         />
       ) : null}

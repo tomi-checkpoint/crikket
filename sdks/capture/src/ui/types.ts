@@ -9,12 +9,14 @@ export interface CaptureReviewSubmitOptions {
 }
 
 export interface CaptureUiState {
-  view: "chooser" | "recording" | "review" | "success"
+  view: "chooser" | "recording" | "console" | "review" | "success"
   overlayOpen: boolean
   recordingDockOpen: boolean
+  consoleDockOpen: boolean
   busy: boolean
   errorMessage: string | null
   recordingStartedAt: number | null
+  consoleSessionStartedAt: number | null
   warnings: string[]
   summary: CaptureDebuggerSummary
   media: CapturedMedia | null
@@ -28,6 +30,8 @@ export interface CaptureUiHandlers {
   onLauncherClick: () => void
   onClose: () => void
   onStartVideo: () => void
+  onStartConsole: () => void
+  onStopConsole: () => void
   onTakeScreenshot: () => void
   onPickScreenshotFile: (file: File | Blob) => void
   onStopRecording: () => void
@@ -45,6 +49,8 @@ export interface CaptureUiCallbacks {
   onLauncherClick: () => void
   onClose: () => void
   onStartVideo: () => Promise<{ startedAt: number }>
+  onStartConsole: () => Promise<{ startedAt: number }>
+  onStopConsole: () => void
   onTakeScreenshot: () => Promise<void>
   onPickScreenshotFile: (file: File | Blob) => Promise<void>
   onStopRecording: () => Promise<void>
@@ -66,6 +72,7 @@ export interface CaptureUiStore {
   openChooser: () => void
   close: () => void
   showRecording: (startedAt: number) => void
+  showConsoleSession: (startedAt: number) => void
   showReview: (input: {
     media: CapturedMedia
     warnings: string[]

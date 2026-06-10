@@ -56,6 +56,12 @@ init({
 That mounts the floating launcher and lets users capture a screenshot or screen
 recording, fill out the report form, and submit directly from your site.
 
+The chooser also offers **Capture console logs**: it starts recording console
+logs and the user's clicks (as steps) while they reproduce the bug, hides the
+widget so they can interact with the page, and finalizes everything into the
+report when they re-open the widget and take a screenshot. The session stops
+automatically after 3 minutes if no screenshot is taken.
+
 ## Usage
 
 ### `init()` in any browser app

@@ -38,6 +38,14 @@ export class LazyDebuggerCollector {
     collector.startSession("video")
   }
 
+  async startConsoleSession(): Promise<void> {
+    const collector = await this.ensureCollector()
+    // Open-ended session anchored to now (lookbackMs 0) so console + action
+    // events captured while the user reproduces the bug accumulate until a
+    // screenshot finalizes them.
+    collector.startSession("screenshot", 0)
+  }
+
   markRecordingStarted(recordingStartedAt: number): void {
     this.collector?.markRecordingStarted(recordingStartedAt)
   }

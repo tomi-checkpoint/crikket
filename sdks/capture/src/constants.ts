@@ -4,4 +4,8 @@ export const DEFAULT_Z_INDEX = 2_147_483_640
 export const MAX_RECENT_EVENT_AGE_MS = 60_000
 export const MAX_RECENT_EVENT_COUNT = 250
 export const SCREENSHOT_LOOKBACK_MS = 10_000
+// How long a manually-started console-capture session records console + action
+// events while the user reproduces the bug, before it auto-stops if they never
+// finalize it with a screenshot.
+export const CONSOLE_SESSION_TIMEOUT_MS = 180_000
 export const TRAILING_SLASHES_REGEX = /\/+$/

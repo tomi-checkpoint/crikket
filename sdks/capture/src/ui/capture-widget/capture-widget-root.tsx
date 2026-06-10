@@ -6,6 +6,7 @@ import type {
 } from "../types"
 import { CaptureWidgetShell } from "./capture-widget-shell"
 import { useCaptureUiHandlers } from "./hooks/use-capture-ui-handlers"
+import { useConsoleCountdown } from "./hooks/use-console-countdown"
 import { useRecordingClock } from "./hooks/use-recording-clock"
 
 export function CaptureWidgetRoot(props: {
@@ -28,10 +29,15 @@ export function CaptureWidgetRoot(props: {
     recordingDockOpen: state.recordingDockOpen,
     recordingStartedAt: state.recordingStartedAt,
   })
+  const consoleRemainingTime = useConsoleCountdown({
+    consoleDockOpen: state.consoleDockOpen,
+    consoleSessionStartedAt: state.consoleSessionStartedAt,
+  })
 
   return (
     <CaptureWidgetShell
       capabilities={props.capabilities}
+      consoleRemainingTime={consoleRemainingTime}
       handlers={handlers}
       isSubmitPending={isSubmitPending}
       recordingTime={recordingTime}

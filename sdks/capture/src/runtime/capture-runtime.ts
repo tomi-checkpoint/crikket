@@ -1,3 +1,4 @@
+import { CONSOLE_SESSION_TIMEOUT_MS } from "../constants"
 import { LazyDebuggerCollector } from "../debugger/lazy-debugger-collector"
 import {
   captureScreenshot,
@@ -32,6 +33,8 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
   private activeRecording: RecordingController | null = null
   private currentMedia: CapturedMedia | null = null
   private currentReview: ReviewSnapshot | null = null
+  private consoleSessionActive = false
+  private consoleSessionTimer: ReturnType<typeof setTimeout> | null = null
 
   init(options: CaptureInitOptions): CaptureRuntimeController {
     const config: CaptureRuntimeConfig = {
@@ -75,6 +78,12 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
       onStartVideo: () => {
         return this.startRecording()
       },
+      onStartConsole: () => {
+        return this.startConsoleSession()
+      },
+      onStopConsole: () => {
+        this.stopConsoleSession()
+      },
       onTakeScreenshot: async () => {
         const blob = await this.takeScreenshot()
         if (!blob) {
@@ -111,6 +120,8 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
 
   unmount(): void {
     this.abortActiveRecording()
+    this.clearConsoleTimeout()
+    this.consoleSessionActive = false
     this.setUiHidden(false)
     this.mountedUi?.unmount()
     this.mountedUi = null
@@ -135,6 +146,11 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
   }
 
   close(): void {
+    if (this.consoleSessionActive) {
+      this.cancelConsoleSession()
+      return
+    }
+
     this.setUiHidden(false)
     this.mountedUi?.store.close()
   }
@@ -200,10 +216,28 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
     return result.blob
   }
 
+  async startConsoleSession(): Promise<{ startedAt: number }> {
+    this.getRuntimeConfig()
+    this.ensureBrowserContext()
+    // A console session and a video recording both own the single debugger
+    // session + the open dock, so they are mutually exclusive.
+    this.abortActiveRecording()
+    await this.debuggerCollector.startConsoleSession()
+    const startedAt = Date.now()
+    this.consoleSessionActive = true
+    this.startConsoleTimeout()
+
+    return { startedAt }
+  }
+
+  stopConsoleSession(): void {
+    this.cancelConsoleSession()
+  }
+
   async takeScreenshot(): Promise<Blob | null> {
     this.getRuntimeConfig()
     this.ensureBrowserContext()
-    await this.debuggerCollector.startScreenshotSession()
+    await this.beginScreenshotCapture()
 
     let blob: Blob
     try {
@@ -226,7 +260,7 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
   async takeScreenshotFromFile(file: File | Blob): Promise<Blob | null> {
     this.getRuntimeConfig()
     this.ensureBrowserContext()
-    await this.debuggerCollector.startScreenshotSession()
+    await this.beginScreenshotCapture()
 
     let blob: Blob
     try {
@@ -281,6 +315,8 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
 
   reset(): void {
     this.abortActiveRecording()
+    this.clearConsoleTimeout()
+    this.consoleSessionActive = false
     this.setUiHidden(false)
     this.clearMedia()
     this.currentReview = null
@@ -343,6 +379,45 @@ export class CaptureSdkRuntime implements CaptureRuntimeController {
 
     this.activeRecording.abort()
     this.activeRecording = null
+  }
+
+  private async beginScreenshotCapture(): Promise<void> {
+    if (this.consoleSessionActive) {
+      // Finalize the running console session with this screenshot — do NOT
+      // start a fresh screenshot session, which would discard the console +
+      // step history accumulated during the session.
+      this.clearConsoleTimeout()
+      this.consoleSessionActive = false
+      return
+    }
+
+    await this.debuggerCollector.startScreenshotSession()
+  }
+
+  private startConsoleTimeout(): void {
+    this.clearConsoleTimeout()
+    this.consoleSessionTimer = setTimeout(() => {
+      this.cancelConsoleSession()
+    }, CONSOLE_SESSION_TIMEOUT_MS)
+  }
+
+  private clearConsoleTimeout(): void {
+    if (this.consoleSessionTimer !== null) {
+      clearTimeout(this.consoleSessionTimer)
+      this.consoleSessionTimer = null
+    }
+  }
+
+  private cancelConsoleSession(): void {
+    if (!this.consoleSessionActive) {
+      return
+    }
+
+    this.clearConsoleTimeout()
+    this.consoleSessionActive = false
+    this.debuggerCollector.clearSession()
+    this.setUiHidden(false)
+    this.mountedUi?.store.close()
   }
 
   private async hideUiForCapture(): Promise<void> {
